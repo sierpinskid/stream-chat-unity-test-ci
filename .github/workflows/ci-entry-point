@@ -1,0 +1,38 @@
+name: CI - Run Tests & Build Sample App
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testRunner-macos:
+    uses: ./.github/workflows/ci-internal.yml
+    with:
+      os: macos-latest
+      unity_version: 2021.3.0
+      dotnet_version: NET_4_x
+      compiler: il2cpp
+      target_platform: standalone
+
+  testRunner-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        unity_version: [2021.3.0, 2020.3.0]
+        dotnet_version: [NET_4_x, STANDARD_2_x]
+        compiler: [mono, il2cpp]
+        target_platform: [standalone, mobile]
+    uses: ./.github/workflows/ci-internal.yml
+    with:
+      os: ubuntu-latest
+      unity_version: ${{ matrix.unity_version }}
+      dotnet_version: ${{ matrix.dotnet_version }}
+      compiler: ${{ matrix.compiler }}
+      target_platform: ${{ matrix.target_platform }}
