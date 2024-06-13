@@ -53,6 +53,28 @@ jobs:
 #        run: python --version
 #        continue-on-error: true
 
+      - name: Check Secrets
+        run: |
+          required_secrets=("UNITY_ACCOUNT_USER" "UNITY_ACCOUNT_PASS" "EMAIL_PASS")
+          for secret in "${required_secrets[@]}"; do
+            if [ -z "${{ secrets[secret] }}" ]; then
+              echo "Error: Secret $secret is empty or not defined."
+            else
+              echo "Secret $secret is set."
+            fi
+          done
+
+      - name: Check Inputs
+        run: |
+          required_secrets=("UNITY_ACCOUNT_USER" "UNITY_ACCOUNT_PASS" "EMAIL_PASS")
+          for secret in "${required_secrets[@]}"; do
+            if [ -z "${{ inputs[secret] }}" ]; then
+              echo "Error: Input $secret is empty or not defined."
+            else
+              echo "Input $secret is set."
+            fi
+          done
+
       - name: Install node package, `unity-license-activate`
         run: npm install --global https://github.com/sierpinskid/unity-license-activate
 
@@ -206,9 +228,9 @@ jobs:
         shell: bash
         run: |
           if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
-            sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+            sudo unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
           elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-            unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+            unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
           fi
         timeout-minutes: 25
         continue-on-error: true
@@ -219,9 +241,9 @@ jobs:
         shell: bash
         run: |
           if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
-            sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+            sudo unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
           elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-            unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+            unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
           fi
         timeout-minutes: 25
         continue-on-error: true
@@ -232,9 +254,9 @@ jobs:
         shell: bash
         run: |
           if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
-            sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+            sudo unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
           elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-            unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
+            unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
           fi
         timeout-minutes: 25
         continue-on-error: true
