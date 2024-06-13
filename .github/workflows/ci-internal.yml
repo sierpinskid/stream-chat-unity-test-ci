@@ -89,6 +89,16 @@ jobs:
             echo "Input EMAIL_PASS is set."
           fi
 
+      - name: Print OS
+        shell: bash
+        run: echo runner.os
+        continue-on-error: true
+
+      - name: Print Inputs OS
+        shell: bash
+        run: echo ${{ inputs.os }}
+        continue-on-error: true
+
       - name: Install node package, `unity-license-activate`
         run: npm install --global https://github.com/sierpinskid/unity-license-activate
 
