@@ -112,7 +112,7 @@ jobs:
             fi
 
       - name: Install IL2CPP Module
-        if: matrix.compiler == 'il2cpp'
+        if: inputs.compiler == 'il2cpp'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 5
@@ -126,7 +126,7 @@ jobs:
             fi
 
       - name: Install Mobile Module
-        if: matrix.target_platform == 'mobile'
+        if: inputs.target_platform == 'mobile'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 5
@@ -289,8 +289,8 @@ jobs:
           echo '----'
         continue-on-error: true
 
-      - name: Upload Sample App
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.os }}_${{ inputs.unity_version }}_${{ inputs.compiler }}_${{ inputs.dotnet_version }}_${{ inputs.target_platform }}_sample_app
-          path: ~/SampleAppBuild/App/
+#      - name: Upload Sample App
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: ${{ inputs.os }}_${{ inputs.unity_version }}_${{ inputs.compiler }}_${{ inputs.dotnet_version }}_${{ inputs.target_platform }}_sample_app
+#          path: ~/SampleAppBuild/App/
