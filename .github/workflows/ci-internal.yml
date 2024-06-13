@@ -18,9 +18,6 @@ on:
       target_platform:
         required: true
         type: string
-    secrets:
-      UNITY_LICENSE:
-        required: true
 
 jobs:
   testRunner:
