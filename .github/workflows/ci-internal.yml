@@ -133,6 +133,18 @@ jobs:
         run: ls /opt/Unity
         continue-on-error: true
 
+      - name: Print /opt dir 3
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Editor
+        continue-on-error: true
+
+      - name: Print /opt dir 4
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Editor/Unity
+        continue-on-error: true
+
       - name: Install IL2CPP Module
         if: inputs.compiler == 'il2cpp'
         uses: nick-fields/retry@v2
