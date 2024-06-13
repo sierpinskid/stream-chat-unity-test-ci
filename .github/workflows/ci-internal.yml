@@ -115,6 +115,24 @@ jobs:
               tar -xJf ~/Unity.tar.xz -C /opt
             fi
 
+      - name: Print ~
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls ~
+        continue-on-error: true
+
+      - name: Print /opt dir
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt
+        continue-on-error: true
+
+      - name: Print /opt dir 2
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Unity
+        continue-on-error: true
+
       - name: Install IL2CPP Module
         if: inputs.compiler == 'il2cpp'
         uses: nick-fields/retry@v2
