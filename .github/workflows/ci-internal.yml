@@ -210,7 +210,7 @@ jobs:
             if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
               sudo installer -package ~/UnityIosModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-              7z x -o/opt/Editor ~/UnityAndroidModule.pkg
+              7z x -o /opt/Editor ~/UnityAndroidModule.pkg
             fi
 
       - name: Create Test Results dir
