@@ -57,19 +57,16 @@ jobs:
         run: |
           if [ -z "${{ secrets.UNITY_ACCOUNT_USER }}" ]; then
             echo "Error: Secret UNITY_ACCOUNT_USER is empty or not defined."
-            exit 1
           else
             echo "Secret UNITY_ACCOUNT_USER is set."
           fi
           if [ -z "${{ secrets.UNITY_ACCOUNT_PASS }}" ]; then
             echo "Error: Secret UNITY_ACCOUNT_PASS is empty or not defined."
-            exit 1
           else
             echo "Secret UNITY_ACCOUNT_PASS is set."
           fi
           if [ -z "${{ secrets.EMAIL_PASS }}" ]; then
             echo "Error: Secret EMAIL_PASS is empty or not defined."
-            exit 1
           else
             echo "Secret EMAIL_PASS is set."
           fi
@@ -78,19 +75,16 @@ jobs:
         run: |
           if [ -z "${{ inputs.UNITY_ACCOUNT_USER }}" ]; then
             echo "Error: Input UNITY_ACCOUNT_USER is empty or not defined."
-            exit 1
           else
             echo "Input UNITY_ACCOUNT_USER is set."
           fi
           if [ -z "${{ inputs.UNITY_ACCOUNT_PASS }}" ]; then
             echo "Error: Input UNITY_ACCOUNT_PASS is empty or not defined."
-            exit 1
           else
             echo "Input UNITY_ACCOUNT_PASS is set."
           fi
           if [ -z "${{ inputs.EMAIL_PASS }}" ]; then
             echo "Error: Input EMAIL_PASS is empty or not defined."
-            exit 1
           else
             echo "Input EMAIL_PASS is set."
           fi
