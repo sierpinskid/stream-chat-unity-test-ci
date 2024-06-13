@@ -91,7 +91,7 @@ jobs:
 
       - name: Print OS
         shell: bash
-        run: echo runner.os
+        run: echo ${{ runner.os }}
         continue-on-error: true
 
       - name: Print Inputs OS
@@ -106,13 +106,13 @@ jobs:
         run: npm install --global https://github.com/sierpinskid/unity-verify-code
 
       - name: Install dependencies
-        if: ${{ inputs.os }} == 'ubuntu-latest'
+        if: inputs.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y libssl-dev git make autoconf automake libtool wget
 
       - name: Install xar
-        if: ${{ inputs.os }} == 'ubuntu-latest'
+        if: inputs.os == 'ubuntu-latest'
         run: |
           git clone https://github.com/mackyle/xar.git
           cd xar/xar
