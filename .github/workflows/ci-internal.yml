@@ -248,9 +248,9 @@ jobs:
         shell: bash
         run: |
           if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
-            sudo unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
+            sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
           elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-            unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
+            unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
           fi
         timeout-minutes: 25
         continue-on-error: true
@@ -261,9 +261,9 @@ jobs:
         shell: bash
         run: |
           if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
-            sudo unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
+            sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
           elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-            unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
+            unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
           fi
         timeout-minutes: 25
         continue-on-error: true
@@ -274,9 +274,9 @@ jobs:
         shell: bash
         run: |
           if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
-            sudo unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
+            sudo unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
           elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-            unity-license-activate "${{ inputs.UNITY_ACCOUNT_USER }}" "${{ inputs.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ inputs.EMAIL_PASS }}" --host "imap.gmail.com"
+            unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
           fi
         timeout-minutes: 25
         continue-on-error: true
