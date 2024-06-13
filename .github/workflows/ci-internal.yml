@@ -156,7 +156,7 @@ jobs:
             if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
               sudo installer -package ~/UnityIL2CPPModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-              tar -xJf ~/UnityIL2CPPModule.tar.xz -C /opt
+              tar -xJf ~/UnityIL2CPPModule.tar.xz -C /opt/Editor
             fi
 
       - name: Install Mobile Module
@@ -170,7 +170,7 @@ jobs:
             if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
               sudo installer -package ~/UnityIosModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-              tar -xJf ~/UnityAndroidModule.tar.xz -C /opt
+              tar -xJf ~/UnityAndroidModule.tar.xz -C /opt/Editor
             fi
 
       - name: Create Test Results dir
