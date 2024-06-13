@@ -18,6 +18,13 @@ on:
       target_platform:
         required: true
         type: string
+    secrets:
+      UNITY_ACCOUNT_USER:
+        required: true
+      UNITY_ACCOUNT_PASS:
+        required: true
+      EMAIL_PASS:
+        required: true
 
 jobs:
   testRunner:
