@@ -95,6 +95,10 @@ jobs:
       - name: Install node package, `unity-verify-code`
         run: npm install --global https://github.com/sierpinskid/unity-verify-code
 
+      - name: Install 7z (for extracting .pkg files on Linux)
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: sudo apt-get install -y p7zip-full
+
       - name: Download Unity & Modules
         shell: bash
         run: |
@@ -206,7 +210,7 @@ jobs:
             if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
               sudo installer -package ~/UnityIosModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-              sudo installer -package ~/UnityIosModule.pkg -target /opt/Editor
+              7z x -o/opt/Editor ~/UnityAndroidModule.pkg
             fi
 
       - name: Create Test Results dir
