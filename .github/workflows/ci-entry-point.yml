@@ -20,6 +20,10 @@ jobs:
       dotnet_version: NET_4_x
       compiler: il2cpp
       target_platform: standalone
+    secrets:
+      UNITY_ACCOUNT_USER: ${{ secrets.UNITY_ACCOUNT_USER }}
+      UNITY_ACCOUNT_PASS: ${{ secrets.UNITY_ACCOUNT_PASS }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
 
   testRunner-linux:
     strategy:
@@ -36,3 +40,7 @@ jobs:
       dotnet_version: ${{ matrix.dotnet_version }}
       compiler: ${{ matrix.compiler }}
       target_platform: ${{ matrix.target_platform }}
+    secrets:
+      UNITY_ACCOUNT_USER: ${{ secrets.UNITY_ACCOUNT_USER }}
+      UNITY_ACCOUNT_PASS: ${{ secrets.UNITY_ACCOUNT_PASS }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
