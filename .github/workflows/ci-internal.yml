@@ -55,25 +55,45 @@ jobs:
 
       - name: Check Secrets
         run: |
-          required_secrets=("UNITY_ACCOUNT_USER" "UNITY_ACCOUNT_PASS" "EMAIL_PASS")
-          for secret in "${required_secrets[@]}"; do
-            if [ -z "${{ secrets[secret] }}" ]; then
-              echo "Error: Secret $secret is empty or not defined."
-            else
-              echo "Secret $secret is set."
-            fi
-          done
+          if [ -z "${{ secrets.UNITY_ACCOUNT_USER }}" ]; then
+            echo "Error: Secret UNITY_ACCOUNT_USER is empty or not defined."
+            exit 1
+          else
+            echo "Secret UNITY_ACCOUNT_USER is set."
+          fi
+          if [ -z "${{ secrets.UNITY_ACCOUNT_PASS }}" ]; then
+            echo "Error: Secret UNITY_ACCOUNT_PASS is empty or not defined."
+            exit 1
+          else
+            echo "Secret UNITY_ACCOUNT_PASS is set."
+          fi
+          if [ -z "${{ secrets.EMAIL_PASS }}" ]; then
+            echo "Error: Secret EMAIL_PASS is empty or not defined."
+            exit 1
+          else
+            echo "Secret EMAIL_PASS is set."
+          fi
 
       - name: Check Inputs
         run: |
-          required_secrets=("UNITY_ACCOUNT_USER" "UNITY_ACCOUNT_PASS" "EMAIL_PASS")
-          for secret in "${required_secrets[@]}"; do
-            if [ -z "${{ inputs[secret] }}" ]; then
-              echo "Error: Input $secret is empty or not defined."
-            else
-              echo "Input $secret is set."
-            fi
-          done
+          if [ -z "${{ inputs.UNITY_ACCOUNT_USER }}" ]; then
+            echo "Error: Input UNITY_ACCOUNT_USER is empty or not defined."
+            exit 1
+          else
+            echo "Input UNITY_ACCOUNT_USER is set."
+          fi
+          if [ -z "${{ inputs.UNITY_ACCOUNT_PASS }}" ]; then
+            echo "Error: Input UNITY_ACCOUNT_PASS is empty or not defined."
+            exit 1
+          else
+            echo "Input UNITY_ACCOUNT_PASS is set."
+          fi
+          if [ -z "${{ inputs.EMAIL_PASS }}" ]; then
+            echo "Error: Input EMAIL_PASS is empty or not defined."
+            exit 1
+          else
+            echo "Input EMAIL_PASS is set."
+          fi
 
       - name: Install node package, `unity-license-activate`
         run: npm install --global https://github.com/sierpinskid/unity-license-activate
