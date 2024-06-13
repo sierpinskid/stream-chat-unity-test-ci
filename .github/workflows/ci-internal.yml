@@ -215,7 +215,7 @@ jobs:
           if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
             sudo /Applications/Unity/Unity.app/Contents/MacOS/Unity -batchmode -nographics -manualLicenseFile "$(ls | grep ".ulf$")" -quit
           elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-            sudo /opt/Unity/Editor/Unity -batchmode -nographics -manualLicenseFile "$(ls | grep ".ulf$")" -quit
+            /opt/Unity/Editor/Unity -batchmode -nographics -manualLicenseFile "$(ls | grep ".ulf$")" -quit
           fi
         continue-on-error: true
 
