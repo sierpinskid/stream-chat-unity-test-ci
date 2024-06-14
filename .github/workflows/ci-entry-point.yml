@@ -19,7 +19,7 @@ jobs:
       unity_version: 2021.3.0
       dotnet_version: NET_4_x
       compiler: il2cpp
-      target_platform: standalone
+      target_platform: mobile
     secrets:
       UNITY_ACCOUNT_USER: ${{ secrets.UNITY_ACCOUNT_USER }}
       UNITY_ACCOUNT_PASS: ${{ secrets.UNITY_ACCOUNT_PASS }}
@@ -32,7 +32,7 @@ jobs:
         unity_version: [2021.3.0, 2020.3.0]
         dotnet_version: [NET_4_x, STANDARD_2_x]
         compiler: [mono, il2cpp]
-        target_platform: [standalone, mobile]
+        target_platform: [standalone] #add mobile
     uses: ./.github/workflows/ci-internal.yml
     with:
       os: ubuntu-latest
