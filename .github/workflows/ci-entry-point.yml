@@ -24,6 +24,7 @@ jobs:
       UNITY_ACCOUNT_USER: ${{ secrets.UNITY_ACCOUNT_USER }}
       UNITY_ACCOUNT_PASS: ${{ secrets.UNITY_ACCOUNT_PASS }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      STREAM_AUTH_TEST_DATA_BASE64: ${{ secrects.STREAM_AUTH_TEST_DATA_BASE64 }}
 
   testRunner-linux:
     strategy:
@@ -44,3 +45,4 @@ jobs:
       UNITY_ACCOUNT_USER: ${{ secrets.UNITY_ACCOUNT_USER }}
       UNITY_ACCOUNT_PASS: ${{ secrets.UNITY_ACCOUNT_PASS }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      STREAM_AUTH_TEST_DATA_BASE64: ${{ secrects.STREAM_AUTH_TEST_DATA_BASE64 }}
