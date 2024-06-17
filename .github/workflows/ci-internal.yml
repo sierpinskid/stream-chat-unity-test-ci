@@ -25,6 +25,8 @@ on:
         required: true
       EMAIL_PASS:
         required: true
+      STREAM_AUTH_TEST_DATA_BASE64:
+        required: true
 
 jobs:
   testRunner:
