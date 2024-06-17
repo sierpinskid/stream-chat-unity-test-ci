@@ -301,7 +301,6 @@ jobs:
             unity-license-activate "${{ secrets.UNITY_ACCOUNT_USER }}" "${{ secrets.UNITY_ACCOUNT_PASS }}" "$(ls | grep ".alf$")" --password "${{ secrets.EMAIL_PASS }}" --host "imap.gmail.com"
           fi
         timeout-minutes: 25
-        continue-on-error: true
 
       - name: Activate Unity with .ULF license file
         shell: bash
