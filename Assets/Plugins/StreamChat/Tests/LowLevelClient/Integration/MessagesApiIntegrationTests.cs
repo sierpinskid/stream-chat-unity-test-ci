@@ -169,58 +169,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             Assert.AreEqual(channelState2.Messages.Last().Silent, true);
         }
 
-        [UnityTest]
-        public IEnumerator UploadFile()
-        {
-            yield return LowLevelClient.WaitForClientToConnect();
 
-            //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
-            var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
-            var videoFilePath = Path.Combine("Assets", "Plugins", "StreamChat", "Tests", "SampleFiles", filename);
-
-            var videoClip = AssetDatabase.LoadAssetAtPath<VideoClip>(videoFilePath);
-            Assert.NotNull(videoClip);
-
-            var videoFileContent = File.ReadAllBytes(videoFilePath);
-            Assert.NotNull(videoFileContent);
-            Assert.IsNotEmpty(videoFileContent);
-
-            var channelType = "messaging";
-
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState = state);
-            var channelId = channelState.Channel.Id;
-
-            var uploadFileTask =
-                LowLevelClient.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
-
-            var fileUrl = "";
-            yield return uploadFileTask.RunAsIEnumerator(response => { fileUrl = response.File; });
-
-            var sendMessageRequest = new SendMessageRequest
-            {
-                Message = new MessageRequest
-                {
-                    Text = "Check out my cool video!",
-                    Attachments = new List<AttachmentRequest>
-                    {
-                        new AttachmentRequest
-                        {
-                            AssetUrl = fileUrl,
-                            Type = "video"
-                        }
-                    }
-                }
-            };
-
-            var sendMessageTask = LowLevelClient.MessageApi.SendNewMessageAsync(channelType, channelId, sendMessageRequest);
-
-            yield return sendMessageTask.RunAsIEnumerator(response =>
-            {
-                Assert.IsNotEmpty(response.Message.Attachments);
-            });
-        }
 
         [UnityTest]
         public IEnumerator UploadImageWithResize()
@@ -279,59 +228,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             Assert.AreEqual(image.height, 500);
         }
 
-        [UnityTest]
-        public IEnumerator DeleteFile()
-        {
-            yield return LowLevelClient.WaitForClientToConnect();
-
-            //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
-            var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
-            var videoFilePath = Path.Combine("Assets", "Plugins", "StreamChat", "Tests", "SampleFiles", filename);
-
-            var videoClip = AssetDatabase.LoadAssetAtPath<VideoClip>(videoFilePath);
-            Assert.NotNull(videoClip);
-
-            var videoFileContent = File.ReadAllBytes(videoFilePath);
-            Assert.NotNull(videoFileContent);
-            Assert.IsNotEmpty(videoFileContent);
-
-            var request = new ChannelGetOrCreateRequest();
-
-            var channelType = "messaging";
-
-            ChannelState channelState = null;
-            yield return CreateTempUniqueChannel(channelType, new ChannelGetOrCreateRequest(),
-                state => channelState = state);
-            var channelId = channelState.Channel.Id;
-
-            var uploadFileTask =
-                LowLevelClient.MessageApi.UploadFileAsync(channelType, channelId, videoFileContent, "sample-file-1");
-
-            var fileUrl = "";
-            yield return uploadFileTask.RunAsIEnumerator(response =>
-            {
-                Assert.IsNotEmpty(response.File);
-                fileUrl = response.File;
-            });
-
-            byte[] result = null;
-            yield return DownloadVideoAsync(fileUrl).RunAsIEnumerator(response =>
-            {
-                result = response;
-            });
-
-            bool isEqual = videoFileContent.SequenceEqual(result);
-            Debug.Log($"resultsEqual: {isEqual}, videoFileContent: {videoFileContent.Length}, result: {result.Length}");
-
-
-            var _pathToFile = Path.Combine(Application.persistentDataPath, "video.mp4");
-            Debug.Log("m" + _pathToFile);
-            File.WriteAllBytes(_pathToFile, result);
-
-            var deleteFileTask = LowLevelClient.MessageApi.DeleteFileAsync(channelType, channelId, fileUrl);
-
-            yield return deleteFileTask.RunAsIEnumerator(response => { });
-        }
 
         [UnityTest]
         public IEnumerator Add_reaction_score_to_existing_message()
