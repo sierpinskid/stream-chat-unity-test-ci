@@ -49,11 +49,14 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
-        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync(string name = null, bool watch = true)
+        protected async Task<IStreamChannel> CreateUniqueTempChannelAsync(string name = null, bool watch = true, StreamChatClient overrideClient = null)
         {
             var channelId = "random-channel-11111-" + Guid.NewGuid();
+            var client = overrideClient ?? Client;
 
-            var channelState = await Client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
+            var channelState = await TryAsync(() => client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch), 
+                result => result != null,
+                ex => ex is StreamApiException apiException && apiException.IsRateLimitExceededError());
             _tempChannels.Add(channelState);
             return channelState;
         }
@@ -151,7 +154,7 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
         /// </summary>
-        protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
+        protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition, Func<Exception, bool> continueOnException = null, int maxAttempts = 20,
             int initTimeoutMs = 150)
         {
             var response = default(T);
@@ -159,11 +162,20 @@ namespace StreamChat.Tests.StatefulClient
             var attemptsLeft = maxAttempts;
             while (attemptsLeft > 0)
             {
-                response = await task();
-
-                if (successCondition(response))
+                try
                 {
-                    return response;
+                    response = await task();
+                    if (successCondition(response))
+                    {
+                        return response;
+                    }
+                }
+                catch (Exception ex)                 
+                {
+                    if (continueOnException == null || !continueOnException(ex))
+                    {
+                        throw ex;
+                    }
                 }
 
                 var delay = initTimeoutMs * Math.Pow(2, (maxAttempts - attemptsLeft));
