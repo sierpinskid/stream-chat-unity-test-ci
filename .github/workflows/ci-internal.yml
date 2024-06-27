@@ -123,6 +123,11 @@ jobs:
           sudo make install
         continue-on-error: true
 
+      - name: Install 7z
+        run: |
+          sudo apt install p7zip-full p7zip-rar
+        continue-on-error: true
+
       - name: Download Unity & Modules
         shell: bash
         run: |
@@ -234,7 +239,7 @@ jobs:
             if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
               sudo installer -package ~/UnityIosModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-              xar -xf ~/UnityAndroidModule.pkg -C /opt/Editor/
+              7z x -o* UnityAndroidModule.pkg
             fi
 
       - name: Create Test Results dir
