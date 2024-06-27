@@ -163,7 +163,7 @@ jobs:
                 curl -L -o ~/UnityIL2CPPModule.tar.xz https://download.unity3d.com/download_unity/6eacc8284459/LinuxEditorTargetInstaller/UnitySetup-Linux-IL2CPP-Support-for-Editor-2021.3.0f1.tar.xz
               fi
               if [[ ${{ inputs.target_platform }} == 'mobile' ]]; then
-                curl -L -o ~/UnityAndroidModule.tar.xz https://download.unity3d.com/download_unity/6eacc8284459/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-2021.3.0f1.pkg
+                curl -L -o ~/UnityAndroidModule.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-2021.3.0f1.pkg
               fi
             elif [[ ${{ inputs.unity_version }} == '2020.3.0' ]]; then
               curl -L -o ~/Unity.tar.xz https://download.unity3d.com/download_unity/1fb1bf06830e/LinuxEditorInstaller/Unity.tar.xz
@@ -171,7 +171,7 @@ jobs:
                 curl -L -o ~/UnityIL2CPPModule.tar.xz https://download.unity3d.com/download_unity/c7b5465681fb/LinuxEditorTargetInstaller/UnitySetup-Linux-IL2CPP-Support-for-Editor-2020.3.0f1.tar.xz
               fi
               if [[ ${{ inputs.target_platform }} == 'mobile' ]]; then
-                curl -L -o ~/UnityAndroidModule.tar.xz https://download.unity3d.com/download_unity/c7b5465681fb/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-2020.3.0f1.pkg
+                curl -L -o ~/UnityAndroidModule.pkg https://download.unity3d.com/download_unity/c7b5465681fb/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-2020.3.0f1.pkg
               fi
             fi
           fi
