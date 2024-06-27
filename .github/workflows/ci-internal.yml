@@ -214,6 +214,24 @@ jobs:
         run: ls /opt/Editor/Unity
         continue-on-error: true
 
+      - name: Print /opt dir 5
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Editor/Data
+        continue-on-error: true
+
+      - name: Print /opt dir 6
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Editor/Data/PlaybackEngines
+        continue-on-error: true
+
+      - name: Print /opt dir 7
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+        continue-on-error: true
+
       - name: Install IL2CPP Module
         if: inputs.compiler == 'il2cpp'
         uses: nick-fields/retry@v2
