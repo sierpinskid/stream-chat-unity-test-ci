@@ -250,18 +250,29 @@ jobs:
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
               sudo mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer
               7z x ~/UnityAndroidModule.pkg -o/opt/Editor/Data/PlaybackEngines/AndroidPlayer
+              original_dir=$(pwd)
+              cd /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+
+              # Check for the existence of Payload or Payload~
+              if [ -f Payload ]; then
+                # Decompress and extract Payload
+                zcat Payload | sudo cpio -idu && sudo rm Payload
+              elif [ -f Payload~ ]; then
+                # Extract Payload~
+                sudo cpio -idu < Payload~ && sudo rm Payload~
+              else
+                echo "Neither Payload nor Payload~ found. Exiting."
+                exit 1
+              fi
+
+              cd "$original_dir"
+
             fi
 
       - name: Print mobile module
         shell: bash
         if: ${{ inputs.os }} == 'ubuntu-latest'
         run: ls ~/
-        continue-on-error: true
-
-      - name: Print mobile module 5
-        shell: bash
-        if: ${{ inputs.os }} == 'ubuntu-latest'
-        run: ls ~/TargetSupport.pkg.tmp/Payload
         continue-on-error: true
  
       - name: Print mobile module 6
