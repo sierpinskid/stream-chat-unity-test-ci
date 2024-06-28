@@ -265,7 +265,12 @@ jobs:
                 exit 1
               fi
 
+              sudo chown -R $(whoami) /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+              sudo chmod -R 755 /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+
               cd "$original_dir"
+
+              sudo apt-get install -y android-sdk unzip lib32stdc++6 lib32z1
 
             fi
 
