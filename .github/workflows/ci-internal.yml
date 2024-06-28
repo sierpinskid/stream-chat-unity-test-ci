@@ -248,9 +248,8 @@ jobs:
             if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
               sudo installer -package ~/UnityIosModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-              7z x -o* ~/UnityAndroidModule.pkg
               sudo mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-              sudo cp -r ~/TargetSupport.pkg.tmp/Payload/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/
+              7z x ~/UnityAndroidModule.pkg -o/opt/Editor/Data/PlaybackEngines/AndroidPlayer
             fi
 
       - name: Print mobile module
