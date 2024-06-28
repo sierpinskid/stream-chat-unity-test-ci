@@ -250,10 +250,22 @@ jobs:
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
               7z x -o* ~/UnityAndroidModule.pkg
               sudo mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-              sudo cp -r ~/UnityAndroidModule/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/
+              sudo cp -r ~/TargetSupport.pkg.tmp/Payload/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/
             fi
 
       - name: Print mobile module
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls ~/
+        continue-on-error: true
+
+      - name: Print mobile module 5
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls ~/TargetSupport.pkg.tmp/Payload
+        continue-on-error: true
+ 
+      - name: Print mobile module 6
         shell: bash
         if: ${{ inputs.os }} == 'ubuntu-latest'
         run: ls ~/UnityAndroidModule
