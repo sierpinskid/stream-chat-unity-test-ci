@@ -113,24 +113,9 @@ jobs:
           sudo apt-get install -y libssl-dev git make autoconf automake libtool wget
         continue-on-error: true
 
-      - name: Install xar
-        run: |
-          git clone https://github.com/mackyle/xar.git
-          cd xar/xar
-          ./autogen.sh
-          ./configure
-          make
-          sudo make install
-        continue-on-error: true
-
       - name: Install 7z
         run: |
           sudo apt install p7zip-full p7zip-rar
-        continue-on-error: true
-
-      - name: Install unar
-        run: |
-          sudo apt-get install unar
         continue-on-error: true
 
       - name: Download Unity & Modules
@@ -264,21 +249,21 @@ jobs:
               sudo installer -package ~/UnityIosModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
               7z x -o* ~/UnityAndroidModule.pkg
+              sudo mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+              sudo cp -r ~/UnityAndroidModule/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/
             fi
 
-      - name: Install Mobile Module 2
-        if: inputs.target_platform == 'mobile'
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          shell: bash
-          command: |
-            if [[ ${{ inputs.os }} == 'macos-latest' ]]; then
-              sudo installer -package ~/UnityIosModule.pkg -target /
-            elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
-              unar ~/UnityAndroidModule.pkg
-            fi
+      - name: Print mobile module
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls ~/UnityAndroidModule
+        continue-on-error: true
+
+      - name: Print mobile module 2
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Editor/Data/PlaybackEngines/AndroidPlayer/
+        continue-on-error: true
 
       - name: Create Test Results dir
         shell: bash
