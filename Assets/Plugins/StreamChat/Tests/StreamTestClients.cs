@@ -85,6 +85,7 @@ namespace StreamChat.Tests
 
         public string OtherUserId => _otherUserCredentials.UserId;
         public IEnumerable<AuthCredentials> OtherUserCredentials => _otherUsersCredentials;
+        public AuthCredentials LowLevelClientCredentials { get; }
 
         public IEnumerator ReconnectLowLevelClientClient()
         {
@@ -96,14 +97,13 @@ namespace StreamChat.Tests
 
         public Task ConnectStateClientAsync() => ConnectStateClientAsync(StateClient, _stateClientCredentials);
 
-        public Task<IStreamChatClient> ConnectOtherStateClientAsync()
+        public Task<StreamChatClient> ConnectOtherStateClientAsync()
             => ConnectStateClientAsync(OtherStateClient, _otherUserCredentials);
 
         private static StreamTestClients _instance;
 
         private readonly HashSet<object> _locks = new HashSet<object>();
 
-        private readonly AuthCredentials _lowLevelClientCredentials;
         private readonly AuthCredentials _stateClientCredentials;
         private readonly AuthCredentials _otherUserCredentials;
         private readonly List<AuthCredentials> _otherUsersCredentials;
@@ -126,13 +126,13 @@ namespace StreamChat.Tests
 
             var adminData = testAuthDataSet.TestAdminData.OrderBy(_ => Random.value).ToList();
 
-            _lowLevelClientCredentials = adminData[0];
+            LowLevelClientCredentials = adminData[0];
             _stateClientCredentials = adminData[1];
             _otherUserCredentials = adminData[2];
             _otherUsersCredentials = adminData.Skip(3).ToList();
         }
 
-        private static async Task<IStreamChatClient> ConnectStateClientAsync(IStreamChatClient client,
+        private static async Task<StreamChatClient> ConnectStateClientAsync(StreamChatClient client,
             AuthCredentials credentials)
         {
             if (client.IsConnected)
@@ -151,6 +151,7 @@ namespace StreamChat.Tests
                 Debug.Log($"Wait for {nameof(StatefulClient)} to connect user with ID: {credentials.UserId}");
 #endif
 
+                client.LowLevelClient.Update(0.1f);
                 await Task.Delay(1);
 
                 if (timer.ElapsedMilliseconds > timeout)
@@ -217,7 +218,7 @@ namespace StreamChat.Tests
 
         private void InitLowLevelClient()
         {
-            _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(_lowLevelClientCredentials);
+            _lowLevelClient = StreamChatLowLevelClient.CreateDefaultClient(LowLevelClientCredentials);
             _lowLevelClient.Connected += OnClientConnected;
             _lowLevelClient.Connect();
         }

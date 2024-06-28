@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
@@ -36,6 +37,8 @@ namespace StreamChat.Tests.StatefulClient
 
         protected static StreamChatClient Client => StreamTestClients.Instance.StateClient;
 
+        protected int MainThreadId { get; } = Thread.CurrentThread.ManagedThreadId;
+
         // StreamTodo: replace with admin ids fetched from loaded data set
         protected const string TestUserId = TestUtils.TestUserId;
         protected const string TestAdminId = TestUtils.TestAdminId;
@@ -46,6 +49,8 @@ namespace StreamChat.Tests.StatefulClient
         protected static IEnumerable<AuthCredentials> OtherAdminUsersCredentials
             => StreamTestClients.Instance.OtherUserCredentials;
 
+        protected int GetCurrentThreadId() => Thread.CurrentThread.ManagedThreadId;
+
         /// <summary>
         /// Create temp channel with random id that will be removed in [TearDown]
         /// </summary>
@@ -54,9 +59,7 @@ namespace StreamChat.Tests.StatefulClient
             var channelId = "random-channel-11111-" + Guid.NewGuid();
             var client = overrideClient ?? Client;
 
-            var channelState = await TryAsync(() => client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch), 
-                result => result != null,
-                ex => ex is StreamApiException apiException && apiException.IsRateLimitExceededError());
+            var channelState = await client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
             _tempChannels.Add(channelState);
             return channelState;
         }
@@ -92,7 +95,7 @@ namespace StreamChat.Tests.StatefulClient
             yield return ConnectAndExecuteAsync(test).RunAsIEnumerator(statefulClient: Client);
         }
 
-        protected Task<IStreamChatClient> GetConnectedOtherClient()
+        protected Task<StreamChatClient> GetConnectedOtherClientAsync()
             => StreamTestClients.Instance.ConnectOtherStateClientAsync();
 
         //StreamTodo: figure out syntax to wrap call in using that will subscribe to observing an event if possible
@@ -154,28 +157,19 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
         /// </summary>
-        protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition, Func<Exception, bool> continueOnException = null, int maxAttempts = 20,
-            int initTimeoutMs = 500)
+        protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
+            int initTimeoutMs = 150)
         {
             var response = default(T);
 
             var attemptsLeft = maxAttempts;
             while (attemptsLeft > 0)
             {
-                try
+                response = await task();
+
+                if (successCondition(response))
                 {
-                    response = await task();
-                    if (successCondition(response))
-                    {
-                        return response;
-                    }
-                }
-                catch (Exception ex)                 
-                {
-                    if (continueOnException == null || !continueOnException(ex))
-                    {
-                        throw ex;
-                    }
+                    return response;
                 }
 
                 var delay = initTimeoutMs * Math.Pow(2, (maxAttempts - attemptsLeft));

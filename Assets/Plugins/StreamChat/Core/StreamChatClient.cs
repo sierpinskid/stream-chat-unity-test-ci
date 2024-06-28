@@ -27,6 +27,8 @@ using StreamChat.Libs.NetworkMonitors;
 using StreamChat.Libs.Serialization;
 using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
+using StreamChat.Core.LowLevelClient.Requests;
+using StreamChat.Libs.Utils;
 
 namespace StreamChat.Core
 {
@@ -201,11 +203,11 @@ namespace StreamChat.Core
             return UpdateLocalUser(ownUserDto);
         }
 
-        //StreamTodo: test scenario: ConnectUserAsync and immediately all DisconnectUserAsync
+        //StreamTodo: test scenario: ConnectUserAsync and immediately call DisconnectUserAsync
         public Task DisconnectUserAsync()
         {
             TryCancelWaitingForUserConnection();
-            return InternalLowLevelClient.DisconnectAsync();
+            return InternalLowLevelClient.DisconnectAsync(permanent: true);
         }
 
         public bool IsLocalUser(IStreamUser user) => LocalUserData.User == user;
@@ -562,7 +564,7 @@ namespace StreamChat.Core
                 }
 
                 Dispose();
-            });
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         void IStreamChatClientEventsListener.Update() => InternalLowLevelClient.Update(_timeService.DeltaTime);
@@ -603,12 +605,25 @@ namespace StreamChat.Core
         {
             _localUserData = _cache.TryCreateOrUpdate(ownUserInternalDto);
 
-            //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
-            // This could be solved if ChannelMutes would be an observable collection
-            foreach (var channel in _cache.Channels.AllItems)
+            if(LocalUserData == null)
             {
-                var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
-                channel.Muted = isMuted;
+                _logs.Error("Local User Data is null");
+                return _localUserData;
+            }
+
+            if(LocalUserData.ChannelMutes != null)
+            {
+                //StreamTodo: Can we not rely on whoever called TryCreateOrUpdate to update this but make it more reliable? Better to react to some event
+                // This could be solved if ChannelMutes would be an observable collection
+                foreach (var channel in _cache.Channels.AllItems)
+                {
+                    var isMuted = LocalUserData.ChannelMutes.Any(_ => _.Channel == channel);
+                    channel.Muted = isMuted;
+                }
+            }
+            else
+            {
+                _logs.Info("ChannelMutes is null");
             }
 
             return _localUserData;
@@ -696,7 +711,18 @@ namespace StreamChat.Core
             try
             {
                 var localUserDto = dto.Me;
-                UpdateLocalUser(localUserDto);
+
+                // This can sometimes be null. I think it's when the client lost network and believes he's reconnecting
+                // but the healthcheck timeout didn't pass on server and from the server perspective the client never disconnected
+                if(localUserDto != null)
+                {
+                    UpdateLocalUser(localUserDto);
+                }
+                else
+                {
+                    _logs.Warning("OnConnected localUserDto was NULL and current LocalUserData is " + (LocalUserData != null) + " value " + LocalUserData);
+                }
+
                 Connected?.Invoke(LocalUserData);
             }
             finally
@@ -708,6 +734,18 @@ namespace StreamChat.Core
                     _connectUserTaskSource = null;
                 }
             }
+
+            RestoreStateLostDuringDisconnect().LogIfFailed();
+        }
+
+        private Task RestoreStateLostDuringDisconnect()
+        {
+            if (!WatchedChannels.Any())
+            {
+                return Task.CompletedTask;
+            }
+
+            return LowLevelClient.FetchAndProcessEventsSinceLastReceivedEvent(WatchedChannels.Select(c => c.Cid));
         }
 
         private void OnDisconnected() => Disconnected?.Invoke();
@@ -864,45 +902,141 @@ namespace StreamChat.Core
 
         private void OnAddedToChannelNotification(NotificationAddedToChannelEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            //StreamTodo: sometimes when I run all tests the eventDto.Channel.Type is null. Inspect how different is this DTO from the channel kept in cache. If its incomplete we shouldn't update the cached value
+            if (eventDto.Channel.Type == null && eventDto.ChannelType != null)
+            {
+                eventDto.Channel.Type = eventDto.ChannelType;
+            }
+
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var member = _cache.TryCreateOrUpdate(eventDto.Member);
             _cache.TryCreateOrUpdate(eventDto.Member.User);
+
+            if (!wasCreated)
+            {
+                AddedToChannelAsMember?.Invoke(channel, member);
+                return;
+            }
             
-            AddedToChannelAsMember?.Invoke(channel, member);
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(AddedToChannelAsMember)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
+
+                AddedToChannelAsMember?.Invoke(channel, member);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnRemovedFromChannelNotification(
             NotificationRemovedFromChannelEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var member = _cache.TryCreateOrUpdate(eventDto.Member);
             _cache.TryCreateOrUpdate(eventDto.Member.User);
             
-            RemovedFromChannelAsMember?.Invoke(channel, member);
+            if (!wasCreated)
+            {
+                RemovedFromChannelAsMember?.Invoke(channel, member);
+                return;
+            }
+            
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(RemovedFromChannelAsMember)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
+
+                RemovedFromChannelAsMember?.Invoke(channel, member);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var user = _cache.TryCreateOrUpdate(eventDto.User);
+            
+            if (!wasCreated)
+            {
+                ChannelInviteReceived?.Invoke(channel, user);
+                return;
+            }
+            
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(ChannelInviteReceived)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
 
-            ChannelInviteReceived?.Invoke(channel, user);
+                ChannelInviteReceived?.Invoke(channel, user);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnInviteAcceptedNotification(NotificationInviteAcceptedEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var user = _cache.TryCreateOrUpdate(eventDto.User);
+            
+            if (!wasCreated)
+            {
+                ChannelInviteAccepted?.Invoke(channel, user);
+                return;
+            }
+            
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(ChannelInviteAccepted)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
 
-            ChannelInviteAccepted?.Invoke(channel, user);
+                ChannelInviteAccepted?.Invoke(channel, user);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnInviteRejectedNotification(NotificationInviteRejectedEventInternalDTO eventDto)
         {
-            var channel = _cache.TryCreateOrUpdate(eventDto.Channel);
+            var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
             var user = _cache.TryCreateOrUpdate(eventDto.User);
+            
+            if (!wasCreated)
+            {
+                ChannelInviteRejected?.Invoke(channel, user);
+                return;
+            }
+            
+            // Watch channel, otherwise WS events won't be received
+            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
+                                $"before triggering the {nameof(ChannelInviteRejected)} event. Inspect the following exception.");
+                    _logs.Exception(t.Exception);
+                    return;
+                }
 
-            ChannelInviteRejected?.Invoke(channel, user);
+                ChannelInviteRejected?.Invoke(channel, user);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnReactionReceived(ReactionNewEventInternalDTO eventDto)
