@@ -342,6 +342,18 @@ jobs:
         run: ls /opt/Editor/Data/PlaybackEngines/AndroidPlayer/
         continue-on-error: true
 
+      - name: Print mobile module 3
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
+        continue-on-error: true
+
+      - name: Print mobile module 4
+        shell: bash
+        if: ${{ inputs.os }} == 'ubuntu-latest'
+        run: ls /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
+        continue-on-error: true
+
       - name: Create Test Results dir
         shell: bash
         run: mkdir test_results
