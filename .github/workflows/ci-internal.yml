@@ -303,10 +303,10 @@ jobs:
       
               # Install OpenJDK to the expected location
               sudo apt-get install -y openjdk-11-jdk
-              sudo ln -s /usr/lib/jvm/java-11-openjdk-amd64 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
+              sudo ln -s /usr/lib/jvm/java-11-openjdk-amd64/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
       
               # Create symbolic link for the Android SDK
-              sudo ln -s $ANDROID_HOME /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
+              sudo ln -s $ANDROID_HOME/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
               chmod -R 777 /opt/Editor/
 
