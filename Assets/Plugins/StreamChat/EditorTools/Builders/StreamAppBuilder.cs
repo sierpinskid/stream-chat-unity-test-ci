@@ -43,6 +43,7 @@ namespace StreamChat.EditorTools.Builders
                 locationPathName = settings.TargetPath,
                 targetGroup = settings.BuildTargetGroup,
                 target = buildTarget,
+                options = BuildOptions.Development
             };
 
             Debug.Log("Building sample app with settings: " + settings);
