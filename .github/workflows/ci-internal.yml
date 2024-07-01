@@ -308,10 +308,9 @@ jobs:
               # Create symbolic link for the Android SDK
               sudo ln -s $ANDROID_HOME/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
-              chmod -R 777 /opt/Editor/
-
-              sudo chown -R $(whoami) /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-              sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+              # Set permissions to avoid 'permission denied' issues
+              sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
+              sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
               # Verify JDK installation
               if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK" ]; then
