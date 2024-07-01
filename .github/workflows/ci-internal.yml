@@ -308,6 +308,18 @@ jobs:
               # Create symbolic link for the Android SDK
               sudo ln -s $ANDROID_HOME /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
+              # Verify JDK installation
+              if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK" ]; then
+                echo "JDK installation failed. Exiting."
+                exit 1
+              fi
+      
+              # Verify Android SDK installation
+              if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK" ]; then
+                echo "Android SDK installation failed. Exiting."
+                exit 1
+              fi
+
             fi
 
       - name: Print mobile module
