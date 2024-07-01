@@ -279,7 +279,7 @@ jobs:
               fi
 
               sudo chown -R $(whoami) /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-              sudo chmod -R 755 /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+              sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer
 
               cd "$original_dir"
 
@@ -309,6 +309,9 @@ jobs:
               sudo ln -s $ANDROID_HOME/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
               chmod -R 777 /opt/Editor/
+
+              sudo chown -R $(whoami) /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+              sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer
 
               # Verify JDK installation
               if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK" ]; then
