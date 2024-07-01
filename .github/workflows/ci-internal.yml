@@ -243,6 +243,13 @@ jobs:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '11'
 
+      - name: Set up Java environment
+        if: inputs.target_platform == 'mobile' && ${{ inputs.os }} == 'ubuntu-latest'
+        run: |
+          echo "JAVA_HOME=$(which java)" >> $GITHUB_ENV
+          echo "PATH=$JAVA_HOME/bin:$PATH" >> $GITHUB_ENV
+          echo "JAVA_HOME is set to $JAVA_HOME"
+
       - name: Install Mobile Module
         if: inputs.target_platform == 'mobile'
         uses: nick-fields/retry@v2
