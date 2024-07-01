@@ -251,6 +251,11 @@ jobs:
 
               original_dir=$(pwd)
 
+              java -version
+
+              # Remove any existing Java versions
+              sudo apt-get remove -y openjdk-*
+
               # Install OpenJDK 8
               sudo apt-get update
               sudo apt-get install -y openjdk-13-jdk
@@ -258,6 +263,8 @@ jobs:
               # Set JAVA_HOME environment variable
               export JAVA_HOME=/usr/lib/jvm/java-13-openjdk-amd64
               export PATH=$JAVA_HOME/bin:$PATH
+
+              java -version
               
               # Ensure Android SDK is installed
               if [ ! -d "$ANDROID_HOME" ]; then
