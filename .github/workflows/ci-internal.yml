@@ -260,13 +260,6 @@ jobs:
 
               java -version
 
-              # Ensure Android SDK is installed
-              if [ ! -d "$ANDROID_HOME" ]; then
-                sudo apt-get install -y android-sdk
-                export ANDROID_HOME=/usr/lib/android-sdk
-                export PATH=$ANDROID_HOME/tools/bin:$PATH
-              fi
-            
               # Extract Unity Android Module
               sudo mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer
               7z x ~/UnityAndroidModule.pkg -o/opt/Editor/Data/PlaybackEngines/AndroidPlayer
@@ -290,7 +283,29 @@ jobs:
 
               cd "$original_dir"
 
-              sudo apt-get install -y android-sdk unzip lib32stdc++6 lib32z1
+              sudo apt-get install -y unzip lib32stdc++6 lib32z1
+      
+              # Ensure Android SDK is installed
+              if [ ! -d "$ANDROID_HOME" ]; then
+                sudo apt-get install -y android-sdk
+                export ANDROID_HOME=/usr/lib/android-sdk
+                export PATH=$ANDROID_HOME/tools/bin:$PATH
+              fi
+      
+              # Setting Android SDK path for Unity
+              echo "Setting Android SDK path"
+              export ANDROID_SDK_ROOT="/opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK"
+      
+              # Ensure the required directories exist
+              mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
+              mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
+      
+              # Install OpenJDK to the expected location
+              sudo apt-get install -y openjdk-11-jdk
+              sudo ln -s /usr/lib/jvm/java-11-openjdk-amd64 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
+      
+              # Create symbolic link for the Android SDK
+              sudo ln -s $ANDROID_HOME /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
             fi
 
