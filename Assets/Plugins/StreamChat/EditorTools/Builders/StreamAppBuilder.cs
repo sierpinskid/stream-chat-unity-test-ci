@@ -17,11 +17,6 @@ namespace StreamChat.EditorTools.Builders
             EditorUserBuildSettings.SwitchActiveBuildTarget(settings.BuildTargetGroup, buildTarget);
             EditorUserBuildSettings.SetBuildLocation(buildTarget, settings.TargetPath);
 
-            if (settings.BuildTargetGroup == BuildTargetGroup.Android)
-            {
-                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel32;
-            }
-
             var sceneAssetPath = AssetDatabase.GUIDToAssetPath(SampleAppSceneGuid);
             if (!File.Exists(sceneAssetPath))
             {
