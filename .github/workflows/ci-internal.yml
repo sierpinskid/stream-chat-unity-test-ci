@@ -240,7 +240,7 @@ jobs:
         uses: actions/setup-java@v4
         if: inputs.target_platform == 'mobile' && ${{ inputs.os }} == 'ubuntu-latest'
         with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
+          distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '11'
 
       - name: Install Mobile Module
@@ -278,6 +278,9 @@ jobs:
                 exit 1
               fi
 
+              echo "/opt/Editor/Data/PlaybackEngines/AndroidPlayer chmod"
+              echo whoami
+
               sudo chown -R $(whoami) /opt/Editor/Data/PlaybackEngines/AndroidPlayer
               sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer
 
@@ -294,23 +297,23 @@ jobs:
               fi
       
               # Ensure the required directories exist
-              mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
-              mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
+              #mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
+              #mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
               # Setting Android SDK path for Unity
-              echo "Setting Android SDK path"
-              export ANDROID_SDK_ROOT="/opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK"
+              #echo "Setting Android SDK path"
+              #export ANDROID_SDK_ROOT="/opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK"
       
               # Install OpenJDK to the expected location
               #sudo apt-get install -y openjdk-11-jdk
               #sudo ln -s /usr/lib/jvm/java-11-openjdk-amd64/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
       
               # Create symbolic link for the Android SDK
-              sudo ln -s $ANDROID_HOME/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
+              #sudo ln -s $ANDROID_HOME/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
               # Set permissions to avoid 'permission denied' issues
               #sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
-              sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
+              #sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
               # Verify JDK installation
               #if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK" ]; then
@@ -319,10 +322,10 @@ jobs:
               #fi
       
               # Verify Android SDK installation
-              if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK" ]; then
-                echo "Android SDK installation failed. Exiting."
-                exit 1
-              fi
+              #if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK" ]; then
+              #  echo "Android SDK installation failed. Exiting."
+              #  exit 1
+              #fi
 
             fi
 
