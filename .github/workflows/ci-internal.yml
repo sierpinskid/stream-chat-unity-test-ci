@@ -236,6 +236,13 @@ jobs:
               tar -xJf ~/UnityIL2CPPModule.tar.xz -C /opt/Editor
             fi
 
+      - name: Install Java
+        uses: actions/setup-java@v4
+        if: inputs.target_platform == 'mobile' && ${{ inputs.os }} == 'ubuntu-latest'
+        with:
+          distribution: 'zulu' # See 'Supported distributions' for available options
+          java-version: '21'
+
       - name: Install Mobile Module
         if: inputs.target_platform == 'mobile'
         uses: nick-fields/retry@v2
@@ -253,19 +260,6 @@ jobs:
 
               java -version
 
-              # Remove any existing Java versions
-              sudo apt-get remove -y openjdk-*
-
-              # Install OpenJDK 8
-              sudo apt-get update
-              sudo apt-get install -y openjdk-13-jdk
-              
-              # Set JAVA_HOME environment variable
-              export JAVA_HOME=/usr/lib/jvm/java-13-openjdk-amd64
-              export PATH=$JAVA_HOME/bin:$PATH
-
-              java -version
-              
               # Ensure Android SDK is installed
               if [ ! -d "$ANDROID_HOME" ]; then
                 sudo apt-get install -y android-sdk
