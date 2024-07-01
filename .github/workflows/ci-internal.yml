@@ -308,6 +308,8 @@ jobs:
               # Create symbolic link for the Android SDK
               sudo ln -s $ANDROID_HOME /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
 
+              chmod -R 777 /opt/Editor/
+
               # Verify JDK installation
               if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK" ]; then
                 echo "JDK installation failed. Exiting."
