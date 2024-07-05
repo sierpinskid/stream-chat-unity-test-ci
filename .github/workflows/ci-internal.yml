@@ -131,7 +131,7 @@ jobs:
               if [[ ${{ inputs.target_platform }} == 'mobile' ]]; then
                 curl -L -o ~/UnityIosModule.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorTargetInstaller/UnitySetup-iOS-Support-for-Editor-2021.3.0f1.pkg
               fi
-            elif [[ ${{ inputs.unity_version }} == '2020.3.0' ]]; then
+            elif [[ ${{ inputs.unity_version }} == '2020.3.x' ]]; then
               curl -L -o ~/Unity.pkg https://download.unity3d.com/download_unity/1fb1bf06830e/MacEditorInstaller/Unity.pkg
               if [[ ${{ inputs.compiler }} == 'il2cpp' ]]; then
                 curl -L -o ~/UnityIL2CPPModule.pkg https://download.unity3d.com/download_unity/c7b5465681fb/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2020.3.0f1.pkg
@@ -150,13 +150,13 @@ jobs:
               if [[ ${{ inputs.target_platform }} == 'mobile' ]]; then
                 curl -L -o ~/UnityAndroidModule.pkg https://download.unity3d.com/download_unity/6eacc8284459/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-2021.3.0f1.pkg
               fi
-            elif [[ ${{ inputs.unity_version }} == '2020.3.0' ]]; then
-              curl -L -o ~/Unity.tar.xz https://download.unity3d.com/download_unity/1fb1bf06830e/LinuxEditorInstaller/Unity.tar.xz
+            elif [[ ${{ inputs.unity_version }} == '2020.3.x' ]]; then
+              curl -L -o ~/Unity.tar.xz https://download.unity3d.com/download_unity/b805b124c6b7/LinuxEditorInstaller/Unity-2020.3.48f1.tar.xz
               if [[ ${{ inputs.compiler }} == 'il2cpp' ]]; then
-                curl -L -o ~/UnityIL2CPPModule.tar.xz https://download.unity3d.com/download_unity/c7b5465681fb/LinuxEditorTargetInstaller/UnitySetup-Linux-IL2CPP-Support-for-Editor-2020.3.0f1.tar.xz
+                curl -L -o ~/UnityIL2CPPModule.tar.xz https://download.unity3d.com/download_unity/b805b124c6b7/LinuxEditorTargetInstaller/UnitySetup-Linux-IL2CPP-Support-for-Editor-2020.3.48f1.tar.xz
               fi
               if [[ ${{ inputs.target_platform }} == 'mobile' ]]; then
-                curl -L -o ~/UnityAndroidModule.pkg https://download.unity3d.com/download_unity/c7b5465681fb/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-2020.3.0f1.pkg
+                curl -L -o ~/UnityAndroidModule.pkg https://download.unity3d.com/download_unity/b805b124c6b7/MacEditorTargetInstaller/UnitySetup-Android-Support-for-Editor-2020.3.48f1.pkg
               fi
             fi
           fi
@@ -263,91 +263,71 @@ jobs:
               sudo installer -package ~/UnityIosModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
 
-              original_dir=$(pwd)
+              apt-get install -y unzip lib32stdc++6 lib32z1            
+              apt install gradle            
+              apt install lib32z1 lib32ncurses6 libbz2-1.0:i386 libstdc++6:i386
 
-              java -version
-
-              # Extract Unity Android Module
-              sudo mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-              7z x ~/UnityAndroidModule.pkg -o/opt/Editor/Data/PlaybackEngines/AndroidPlayer
-
-              cd /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-
-              # Check for the existence of Payload or Payload~
-              if [ -f Payload ]; then
-                # Decompress and extract Payload
-                zcat Payload | sudo cpio -idu && sudo rm Payload
-              elif [ -f Payload~ ]; then
-                # Extract Payload~
-                sudo cpio -idu < Payload~ && sudo rm Payload~
-              else
-                echo "Neither Payload nor Payload~ found. Exiting."
-                exit 1
-              fi
-
-              echo "/opt/Editor/Data/PlaybackEngines/AndroidPlayer chmod"
-              whoami
-
-              sudo chown -R $(whoami) /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-              sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-
-              cd "$original_dir"
-
-              sudo apt-get install -y unzip lib32stdc++6 lib32z1
-      
-              # Ensure Android SDK is installed
-              #if [ ! -d "$ANDROID_HOME" ]; then
-              #  echo "Installing Android SDK"
-              #  sudo apt-get install -y android-sdk
-              #  export ANDROID_HOME=/usr/lib/android-sdk
-              #  export PATH=$ANDROID_HOME/tools/bin:$PATH
-              #fi
-
-              wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip -O commandlinetools.zip
-              unzip commandlinetools.zip -d cmdline-tools
-              mkdir -p ~/Android/Sdk/cmdline-tools/latest
-              mv cmdline-tools/* ~/Android/Sdk/cmdline-tools/latest/
-
-              ~/Android/Sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
-
-              export ANDROID_HOME=$HOME/Android/Sdk
+              SDK_VERSION="6.0"
+              NDK_VERSION="19.0.5232133"
+              JDK_VERSION="8u412b08"
+              
+              # Define paths
+              INSTALL_DIR="/opt/Editor/Data/PlaybackEngines/AndroidPlayer"
+              SDK_DIR="${INSTALL_DIR}/SDK"
+              NDK_DIR="${INSTALL_DIR}/NDK"
+              JDK_DIR="${INSTALL_DIR}/OpenJDK"
+              
+              # Create directories and set permissions
+              mkdir -p $INSTALL_DIR
+              #chmod -R 777 /opt/Editor
+              
+              # Clean up any previous incomplete installations
+              rm -rf $SDK_DIR $NDK_DIR $JDK_DIR
+              
+              # Install Android SDK
+              wget https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -O cmdline-tools.zip
+              mkdir -p $SDK_DIR/cmdline-tools
+              unzip cmdline-tools.zip -d $SDK_DIR/cmdline-tools
+              mv $SDK_DIR/cmdline-tools/cmdline-tools $SDK_DIR/cmdline-tools/latest
+              
+              # Set environment variables
+              export JAVA_HOME=$JDK_DIR
+              export ANDROID_HOME=$SDK_DIR
+              export PATH=$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
               export PATH=$ANDROID_HOME/platform-tools:$PATH
-              export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+              
+              # Accept licenses and install necessary packages
+              yes | sdkmanager --licenses
+              yes | sdkmanager --update
+              yes | sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+              
+              # Remove duplicate platform-tools directory if it exists
+              rm -rf /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools-2
+              
+              # Install OpenJDK 1.8.0
+              wget https://github.com/adoptium/temurin8-binaries/releases/download/jdk-${JDK_VERSION}/OpenJDK8U-jdk_x64_linux_hotspot_${JDK_VERSION}.tar.gz -O openjdk.tar.gz
+              mkdir -p $JDK_DIR
+              tar -xzf openjdk.tar.gz -C $JDK_DIR --strip-components=1
+              
+              # Install Android NDK 19.0.5232133
+              wget https://dl.google.com/android/repository/android-ndk-r19-linux-x86_64.zip -O android-ndk.zip
+              mkdir -p $NDK_DIR
+              unzip android-ndk.zip -d $NDK_DIR
+              mv $NDK_DIR/android-ndk-r19/* $NDK_DIR
+              rm -r $NDK_DIR/android-ndk-r19
+              
+              # Verify installations
+              sdkmanager --version
+              cat $NDK_DIR/source.properties | grep Pkg.Revision
+              $JDK_DIR/bin/java -version
+              
+              # Ensure Unity paths
+              echo "Ensure the following paths are set in Unity Preferences -> External Tools:"
+              echo "SDK: $SDK_DIR"
+              echo "NDK: $NDK_DIR"
+              echo "JDK: $JDK_DIR"
 
-              sudo apt install gradle
 
-              sudo apt install lib32z1 lib32ncurses6 libbz2-1.0:i386 libstdc++6:i386
-      
-              # Ensure the required directories exist
-              #mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
-              #mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
-
-              # Setting Android SDK path for Unity
-              #echo "Setting Android SDK path"
-              #export ANDROID_SDK_ROOT="/opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK"
-      
-              # Install OpenJDK to the expected location
-              #sudo apt-get install -y openjdk-11-jdk
-              #sudo ln -s /usr/lib/jvm/java-11-openjdk-amd64/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
-      
-              # Create symbolic link for the Android SDK
-              #sudo ln -s $ANDROID_HOME/* /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
-
-              # Set permissions to avoid 'permission denied' issues
-              #sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK
-              #sudo chmod -R 777 /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK
-
-              # Verify JDK installation
-              #if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/OpenJDK" ]; then
-              #  echo "JDK installation failed. Exiting."
-              #  exit 1
-              #fi
-      
-              # Verify Android SDK installation
-              #if [ ! -d "/opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK" ]; then
-              #  echo "Android SDK installation failed. Exiting."
-              #  exit 1
-              #fi
 
             fi
 
