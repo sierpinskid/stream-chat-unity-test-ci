@@ -263,11 +263,10 @@ jobs:
               sudo installer -package ~/UnityIosModule.pkg -target /
             elif [[ ${{ inputs.os }} == 'ubuntu-latest' ]]; then
 
-              sudo apt-get install -y unzip lib32stdc++6 lib32z1            
-              sudo apt install gradle            
-              sudo apt install lib32z1 lib32ncurses6 libbz2-1.0:i386 libstdc++6:i386
-              sudo apt install libssl-dev              
-
+              # Install necessary dependencies
+              sudo apt-get install -y unzip lib32stdc++6 lib32z1 lib32ncurses6 libbz2-1.0:i386 libssl-dev gradle
+              
+              # Define versions
               SDK_VERSION="6.0"
               NDK_VERSION="19.0.5232133"
               JDK_VERSION="8u412b08"
@@ -277,64 +276,60 @@ jobs:
               SDK_DIR="${INSTALL_DIR}/SDK"
               NDK_DIR="${INSTALL_DIR}/NDK"
               JDK_DIR="${INSTALL_DIR}/OpenJDK"
-
-              # Clean up any previous incomplete installations
-              #rm -rf $SDK_DIR $NDK_DIR $JDK_DIR
               
               # Create directories and set permissions
-              mkdir -p $INSTALL_DIR
-              #chmod -R 777 /opt/Editor
-
+              sudo mkdir -p $INSTALL_DIR
+              
               original_dir=$(pwd)
               
-              sudo mkdir -p /opt/Editor/Data/PlaybackEngines/AndroidPlayer
-              7z x ~/UnityAndroidModule.pkg -o/opt/Editor/Data/PlaybackEngines/AndroidPlayer
+              # Extract Unity Android Module
+              7z x ~/UnityAndroidModule.pkg -o$INSTALL_DIR
               
-              cd /opt/Editor/Data/PlaybackEngines/AndroidPlayer
+              cd $INSTALL_DIR
               
               # Check for the existence of Payload or Payload~
               if [ -f Payload ]; then
-                # Decompress and extract Payload
-                zcat Payload | sudo cpio -idu && sudo rm Payload
+                  # Decompress and extract Payload
+                  zcat Payload | sudo cpio -idu && sudo rm Payload
               elif [ -f Payload~ ]; then
-                # Extract Payload~
-                sudo cpio -idu < Payload~ && sudo rm Payload~
+                  # Extract Payload~
+                  sudo cpio -idu < Payload~ && sudo rm Payload~
               else
-                echo "Neither Payload nor Payload~ found. Exiting."
-                exit 1
-              fi             
+                  echo "Neither Payload nor Payload~ found. Exiting."
+                  exit 1
+              fi
               
-              cd "$original_dir"          
-
+              cd "$original_dir"
+              
               # Install OpenJDK 1.8.0
-              wget https://github.com/adoptium/temurin8-binaries/releases/download/jdk-${JDK_VERSION}/OpenJDK8U-jdk_x64_linux_hotspot_${JDK_VERSION}.tar.gz -O openjdk.tar.gz
+              wget -q https://github.com/adoptium/temurin8-binaries/releases/download/jdk-${JDK_VERSION}/OpenJDK8U-jdk_x64_linux_hotspot_${JDK_VERSION}.tar.gz -O openjdk.tar.gz
               mkdir -p $JDK_DIR
               tar -xzf openjdk.tar.gz -C $JDK_DIR --strip-components=1
               
               # Install Android SDK
-              wget https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -O cmdline-tools.zip
+              wget -q https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip -O cmdline-tools.zip
               mkdir -p $SDK_DIR/cmdline-tools
-              unzip cmdline-tools.zip -d $SDK_DIR/cmdline-tools
-              mv $SDK_DIR/cmdline-tools/cmdline-tools $SDK_DIR/cmdline-tools/latest           
+              unzip -q cmdline-tools.zip -d $SDK_DIR/cmdline-tools
+              mv $SDK_DIR/cmdline-tools/cmdline-tools $SDK_DIR/cmdline-tools/latest
               
-              # Accept licenses and install necessary packages
-              yes | sdkmanager --licenses
-              yes | sdkmanager --update
-              yes | sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
-
               # Set environment variables
               export JAVA_HOME=$JDK_DIR
               export ANDROID_HOME=$SDK_DIR
               export PATH=$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
               export PATH=$ANDROID_HOME/platform-tools:$PATH
               
+              # Accept licenses and install necessary packages
+              yes | sdkmanager --licenses
+              yes | sdkmanager --update
+              yes | sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+              
               # Remove duplicate platform-tools directory if it exists
-              rm -rf /opt/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools-2
+              rm -rf $SDK_DIR/platform-tools-2
               
               # Install Android NDK 19.0.5232133
-              wget https://dl.google.com/android/repository/android-ndk-r19-linux-x86_64.zip -O android-ndk.zip
+              wget -q https://dl.google.com/android/repository/android-ndk-r19-linux-x86_64.zip -O android-ndk.zip
               mkdir -p $NDK_DIR
-              unzip android-ndk.zip -d $NDK_DIR
+              unzip -q android-ndk.zip -d $NDK_DIR
               mv $NDK_DIR/android-ndk-r19/* $NDK_DIR
               rm -r $NDK_DIR/android-ndk-r19
               
@@ -348,6 +343,7 @@ jobs:
               echo "SDK: $SDK_DIR"
               echo "NDK: $NDK_DIR"
               echo "JDK: $JDK_DIR"
+
 
 
 
