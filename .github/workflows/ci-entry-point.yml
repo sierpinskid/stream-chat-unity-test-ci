@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        unity_version: [2020.3.0] #add 2021.3.0
+        unity_version: [2020.3.x] #add 2021.3.x
         dotnet_version: [NET_4_x] # add STANDARD_2_x
         compiler: [mono] #add il2cpp
         target_platform: [mobile] #add mobile
