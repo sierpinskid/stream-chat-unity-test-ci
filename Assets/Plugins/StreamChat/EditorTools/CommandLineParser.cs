@@ -5,6 +5,7 @@ using StreamChat.EditorTools.Builders;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Serialization;
 using UnityEditor;
+using UnityEngine;
 
 namespace StreamChat.EditorTools
 {
