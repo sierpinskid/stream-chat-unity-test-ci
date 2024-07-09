@@ -86,6 +86,11 @@ namespace StreamChat.EditorTools
                 {
                     return;
                 }
+                if (result.ContainsKey(_.Key))
+                {
+                    Debug.LogError(
+                        $"Duplicated key {_.Key} with value given: {_.Value} and already stored: {result[_.Key]}. Values equal: {result[_.Key] == _.Value}");
+                }
 
                 result.Add(_.Key, _.Value);
             });
