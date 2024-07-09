@@ -103,7 +103,7 @@ namespace StreamChat.EditorTools
                 if (args[i].StartsWith("-"))
                 {
                     var key = args[i];
-                    var value = i < args.Length - 1 ? args[i + 1] : null;
+                    var value = (i < args.Length - 1 && !args[i + 1].StartsWith("-")) ? args[i + 1] : null;
 
                     onArgumentParsed?.Invoke((key, value));
                 }
