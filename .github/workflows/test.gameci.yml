@@ -106,6 +106,7 @@ jobs:
           buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility "NET_4_x" -scriptingBackend "mono" -buildTargetPlatform "mobile" -buildTargetPath $(pwd)/SampleAppBuild/App.apk
           customImage: 'unityci/editor:ubuntu-2020.3.40f1-android-3.1.0'
+          allowDirtyBuild: true #Needed because ProjectSettings gets updated when the project is reimported with different Unity version
 
 
 
