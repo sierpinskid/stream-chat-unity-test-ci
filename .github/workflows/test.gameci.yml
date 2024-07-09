@@ -43,17 +43,6 @@ jobs:
 
       - name: Install dependencies
         run: sudo apt-get install -y libxtst6 libgtk-3-0
-
-      # Test
-#      - name: Run tests
-#        uses: game-ci/unity-test-runner@v4
-#        continue-on-error: true
-#        env:
-#          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-#          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-#          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-
-
       
       - name: Enable Tests
         uses: game-ci/unity-builder@v4
@@ -80,12 +69,13 @@ jobs:
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}
           customImage: 'unityci/editor:ubuntu-2020.3.40f1-android-3.1.0'
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload Artifacts - Test Results
+        uses: actions/upload-artifact@v3
         if: always()
         continue-on-error: true #TEST ONLY REMOVE THIS
         with:
           name: Test results
-          path: ${{ steps.tests.outputs.artifactsPath }}
+          path: artifacts
 
       - name: Free Disk space
         uses: jlumbroso/free-disk-space@v1.2.0
@@ -110,8 +100,8 @@ jobs:
 
 
 
-      - name: Upload build
+      - name: Upload Artifacts - Build
         uses: actions/upload-artifact@v2
         with:
           name: Build
-          path: $(pwd)/SampleAppBuild/App
+          path: $(pwd)/SampleAppBuild/App.apk
