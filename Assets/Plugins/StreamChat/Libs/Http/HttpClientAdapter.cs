@@ -13,6 +13,9 @@ namespace StreamChat.Libs.Http
         public HttpClientAdapter()
         {
             _httpClient = new HttpClient();
+#if STREAM_TESTS_ENABLED
+            _httpClient.Timeout = TimeSpan.FromSeconds(200);
+#endif
         }
 
         public void SetDefaultAuthenticationHeader(string value)
