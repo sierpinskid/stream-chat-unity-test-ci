@@ -80,7 +80,15 @@ namespace StreamChat.EditorTools
         }
 
         public void ParseCommandLineArguments(string[] args, IDictionary<string, string> result)
-            => ParseCommandLineArguments(args, _ => result.Add(_.Key, _.Value));
+            => ParseCommandLineArguments(args, _ =>
+            {
+                if (result.ContainsKey(_.Key) && result[_.Key] == _.Value)
+                {
+                    return;
+                }
+
+                result.Add(_.Key, _.Value);
+            });
 
         public void ParseCommandLineArguments(string[] args, Action<(string Key, string Value)> onArgumentParsed)
         {
