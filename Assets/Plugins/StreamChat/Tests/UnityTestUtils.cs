@@ -38,6 +38,30 @@ namespace StreamChat.Tests
             onSuccess?.Invoke(task.Result);
         }
 
+        public static IEnumerator RunAsIEnumerator<TResponse>(this Task<TResponse> task, IStreamChatLowLevelClient lowLevelClient,
+            Action<TResponse> onSuccess = null, Action<Exception> onFaulted = null)
+        {
+            while (!task.IsCompleted)
+            {
+                lowLevelClient?.Update(0.2f);
+                yield return null;
+            }
+
+            if (task.IsFaulted)
+            {
+                var ex = UnwrapAggregateException(task.Exception);
+                if (onFaulted != null)
+                {
+                    onFaulted(ex);
+                    yield break;
+                }
+                
+                throw ex;
+            }
+
+            onSuccess?.Invoke(task.Result);
+        }
+
         public static IEnumerator RunAsIEnumerator(this Task task,
             Action onSuccess = null, Action<Exception> onFaulted = null, IStreamChatClient statefulClient = null)
         {
