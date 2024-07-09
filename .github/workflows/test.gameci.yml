@@ -44,16 +44,25 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y libxtst6 libgtk-3-0
 
-      - name: Setup Unity Editor
-        uses: game-ci/unity-editor@v3
-        with:
-          version: ${{ matrix.unityVersion }}
-          modules: android
+      # Test
+      - name: Run tests
+        uses: game-ci/unity-test-runner@v4
+        continue-on-error: true
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
-      - name: Activate Unity License
-        uses: game-ci/unity-activate@v2
+
+      - uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
-          unityLicense: ${{ secrets.UNITY_LICENSE }}
+          targetPlatform: Android
+          buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
+          customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ inputs.dotnet_version }} -scriptingBackend ${{ inputs.compiler }} -buildTargetPlatform ${{ inputs.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/App
 
       - name: Enable Tests
         run: |
