@@ -64,7 +64,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             var createChannelTask = CreateTempUniqueChannelAsync(channelType, channelGetOrCreateRequest);
 
-            yield return createChannelTask.RunAsIEnumerator(response => { onChannelReturned?.Invoke(response); });
+            yield return createChannelTask.RunAsIEnumerator(LowLevelClient, response => { onChannelReturned?.Invoke(response); });
         }
 
         /// <summary>
