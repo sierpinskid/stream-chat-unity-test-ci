@@ -1,0 +1,72 @@
+name: Unity CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        targetPlatform: [Android] # Add other platforms if needed
+        unityVersion: [2020.3.48f1] # Specify your Unity version here
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Git
+        run: git config --global --add safe.directory /github/workspace
+
+#      - name: Cache Unity
+#        uses: actions/cache@v2
+#        with:
+#          path: ~/.cache/unity3d
+#          key: Unity-${{ matrix.unityVersion }}-${{ matrix.targetPlatform }}
+#          restore-keys: |
+#            Unity-${{ matrix.unityVersion }}-
+#            Unity-
+
+#      - name: Cache Library folder
+#        uses: actions/cache@v2
+#        with:
+#          path: ${{ github.workspace }}/Library
+#          key: Library-${{ matrix.unityVersion }}-${{ matrix.targetPlatform }}
+#          restore-keys: |
+#            Library-
+
+      - name: Install dependencies
+        run: sudo apt-get install -y libxtst6 libgtk-3-0
+
+      - name: Setup Unity Editor
+        uses: game-ci/unity-editor@v3
+        with:
+          version: ${{ matrix.unityVersion }}
+          modules: android
+
+      - name: Activate Unity License
+        uses: game-ci/unity-activate@v3
+        with:
+          unityLicense: ${{ secrets.UNITY_LICENSE }}
+
+      - name: Enable Tests
+        run: |
+          /opt/Unity/Editor/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -executeMethod StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag -quit
+
+      #TODO: Run Tests
+
+      - name: Build project
+        run: |
+          /opt/Unity/Editor/Unity -batchmode -nographics -projectPath $GITHUB_WORKSPACE -executeMethod "StreamChat.EditorTools.StreamEditorTools.BuildSampleApp" -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ inputs.dotnet_version }} -scriptingBackend ${{ inputs.compiler }} -buildTargetPlatform ${{ inputs.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/App -quit
+
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: Build
+          path: $(pwd)/SampleAppBuild/App
