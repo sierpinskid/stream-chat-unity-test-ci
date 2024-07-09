@@ -63,9 +63,9 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: Android
-          #unityVersion: 2020.3.48f1
+          unityVersion: 2020.3.48f1
           buildMethod: StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag
-          customImage: 'unityci/editor:ubuntu-2020.3.36f1-linux-il2cpp-3'
+          #customImage: 'unityci/editor:ubuntu-2020.3.36f1-linux-il2cpp-3'
 
       - name: Run Tests
         uses: game-ci/unity-test-runner@v4
@@ -75,9 +75,9 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: Android
-          #unityVersion: 2020.3.48f1
+          unityVersion: 2020.3.48f1
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}
-          customImage: 'unityci/editor:ubuntu-2020.3.36f1-linux-il2cpp-3'
+          #customImage: 'unityci/editor:ubuntu-2020.3.36f1-linux-il2cpp-3'
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -92,10 +92,10 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: Android
-          #unityVersion: 2020.3.48f1
+          unityVersion: 2020.3.48f1
           buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility "NET_4_x" -scriptingBackend "mono" -buildTargetPlatform "mobile" -buildTargetPath $(pwd)/SampleAppBuild/App
-          customImage: 'unityci/editor:ubuntu-2020.3.36f1-linux-il2cpp-3'
+          #customImage: 'unityci/editor:ubuntu-2020.3.36f1-linux-il2cpp-3'
 
 
 
