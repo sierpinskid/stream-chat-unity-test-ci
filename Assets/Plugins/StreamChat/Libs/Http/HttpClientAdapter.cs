@@ -14,7 +14,7 @@ namespace StreamChat.Libs.Http
         {
             _httpClient = new HttpClient();
 #if STREAM_TESTS_ENABLED
-            _httpClient.Timeout = TimeSpan.FromSeconds(200);
+            _httpClient.Timeout = TimeSpan.FromSeconds(500);
 #endif
         }
 
