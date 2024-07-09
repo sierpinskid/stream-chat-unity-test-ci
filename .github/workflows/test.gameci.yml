@@ -61,7 +61,7 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: Android
-          unityVersion: 2020.3.48f
+          unityVersion: 2020.3.48f1
           buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ inputs.dotnet_version }} -scriptingBackend ${{ inputs.compiler }} -buildTargetPlatform ${{ inputs.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/App
 
