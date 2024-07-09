@@ -58,9 +58,10 @@ jobs:
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: Android
+          unityVersion: 2020.3.48f
           buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ inputs.dotnet_version }} -scriptingBackend ${{ inputs.compiler }} -buildTargetPlatform ${{ inputs.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/App
 
