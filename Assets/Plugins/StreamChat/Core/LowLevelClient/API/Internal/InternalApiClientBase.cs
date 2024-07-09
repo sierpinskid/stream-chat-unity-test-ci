@@ -120,6 +120,17 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 }
                 catch (Exception e)
                 {
+
+                    if (responseContent == "upstream request timeout")
+                    {
+                        // Handle API error returned as plain text
+                        apiError = new APIErrorInternalDTO
+                        {
+                            Message = responseContent,
+                            Code = 504,
+                        };
+                        throw new StreamApiException(apiError);
+                    }
                     
 #if STREAM_TESTS_ENABLED || STREAM_DEBUG_ENABLED
                     var sb = new StringBuilder();
