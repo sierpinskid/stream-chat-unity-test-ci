@@ -29,6 +29,7 @@ using StreamChat.Libs.Time;
 using StreamChat.Libs.Websockets;
 using StreamChat.Core.LowLevelClient.Requests;
 using StreamChat.Libs.Utils;
+using System.Text;
 
 namespace StreamChat.Core
 {
