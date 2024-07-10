@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        targetPlatform: [android, ios]
-        unityVersion: [2020, 2021]
+        target_platform: [android, ios]
+        unity_version: [2020, 2021]
         dotnet_version: [NET_4_x, STANDARD_2_x]
         compiler: [mono, il2cpp]
 
