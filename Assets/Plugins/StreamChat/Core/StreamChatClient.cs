@@ -936,7 +936,6 @@ namespace StreamChat.Core
             _logs.Info(sb.ToString());
 #endif
 
-
             var member = _cache.TryCreateOrUpdate(eventDto.Member);
             _cache.TryCreateOrUpdate(eventDto.Member.User);
 
