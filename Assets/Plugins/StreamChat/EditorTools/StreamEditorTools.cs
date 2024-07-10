@@ -36,7 +36,8 @@ namespace StreamChat.EditorTools
 
             var (buildSettings, authCredentials) = parser.Parse();
 
-            builder.BuildSampleApp(buildSettings, authCredentials);
+            var report = builder.BuildSampleApp(buildSettings, authCredentials);
+            EditorApplication.Exit(report.summary.totalErrors > 0 ? 1 : 0);
         }
 
         public static void PrintAndroidExternalToolsInfo()
