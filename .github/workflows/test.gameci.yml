@@ -24,6 +24,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Calculate Sequential Index
+        id: calculate-index
+        run: |
+          target_index=${{ matrix.target_platform == 'android' && '0' || '1' }}
+          unity_index=${{ matrix.unity_version == '2020' && '0' || '1' }}
+          dotnet_index=${{ matrix.dotnet_version == 'NET_4_x' && '0' || '1' }}
+          compiler_index=${{ matrix.compiler == 'mono' && '0' || '1' }}
+          
+          index=$((target_index * 1 + unity_index * 2 + dotnet_index * 4 + compiler_index * 8))
+          
+          echo "SEQUENTIAL_INDEX=$index" >> $GITHUB_ENV
+
+      - name: Print Sequential Index
+        run: |
+            echo "Sequential Index: $SEQUENTIAL_INDEX"
+
       - name: Install Git
         run: git config --global --add safe.directory /github/workspace
 
