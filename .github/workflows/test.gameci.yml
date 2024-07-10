@@ -79,6 +79,10 @@ jobs:
             exit 1
           fi
           echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Echo Docker Image
+        run: |
+          echo ${{ env.DOCKER_TAG }}
       
       - name: Enable Tests
         uses: game-ci/unity-builder@v4
@@ -90,7 +94,7 @@ jobs:
           #targetPlatform: Android
           #unityVersion: 2020.3.48f1
           buildMethod: StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag
-          customImage: ${{ env.DOCKER_TAG }}"
+          customImage: ${{ env.DOCKER_TAG }}
 
       - name: Run Tests
         uses: game-ci/unity-test-runner@v4
@@ -102,7 +106,7 @@ jobs:
           #targetPlatform: Android
           #unityVersion: 2020.3.48f1
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}
-          customImage: ${{ env.DOCKER_TAG }}"
+          customImage: ${{ env.DOCKER_TAG }}
 
       - name: Upload Test Results as Artifact
         uses: actions/upload-artifact@v4
@@ -129,7 +133,7 @@ jobs:
         with:
           buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/App.apk
-          customImage: ${{ env.DOCKER_TAG }}"
+          customImage: ${{ env.DOCKER_TAG }}
           allowDirtyBuild: true #Needed because the import process may update ProjectSettings
 
       - name: Upload Build as Artifact
