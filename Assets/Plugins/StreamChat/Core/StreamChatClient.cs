@@ -926,7 +926,6 @@ namespace StreamChat.Core
 
             var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
 
-
 #if STREAM_TESTS_ENABLED
             sb.Length = 0;
             sb.AppendLine("Channel returned from cache:");
@@ -944,47 +943,9 @@ namespace StreamChat.Core
                 AddedToChannelAsMember?.Invoke(channel, member);
                 return;
             }
-            
-            async Task GetOrCreateChannelAsync()
-            {
-#if STREAM_TESTS_ENABLED
-                const int maxAttempts = 5;
-#else
-                const int maxAttempts = 1;
-#endif
-
-                for (int i = 1; i <= maxAttempts; i++)
-                {
-                    try
-                    {
-                        await GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
-                        RemovedFromChannelAsMember?.Invoke(channel, member);
-                        break;
-                    }
-                    catch (StreamApiException streamException)
-                    {
-                        if (!streamException.IsRateLimitExceededError() || i == maxAttempts)
-                        {
-                            throw;
-                        }
-
-                        if (ConnectionState != ConnectionState.Connected)
-                        {
-                            break;
-                        }
-
-                        await Task.Delay(3000 * i);
-
-                        if (ConnectionState != ConnectionState.Connected)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
 
             // Watch channel, otherwise WS events won't be received
-            GetOrCreateChannelAsync().ContinueWith(t =>
+            InternalGetOrCreateChannelAsync(channel.Type, channel.Id).ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
@@ -1037,46 +998,8 @@ namespace StreamChat.Core
                 return;
             }
 
-            async Task GetOrCreateChannelAsync()
-            {
-#if STREAM_TESTS_ENABLED
-                const int maxAttempts = 5;
-#else
-                const int maxAttempts = 1;
-#endif
-
-                for (int i = 1; i <= maxAttempts; i++)
-                {
-                    try
-                    {
-                        await GetOrCreateChannelWithIdAsync(channel.Type, channel.Id);
-                        RemovedFromChannelAsMember?.Invoke(channel, member);
-                        break;
-                    }
-                    catch (StreamApiException streamException)
-                    {
-                        if (!streamException.IsRateLimitExceededError() || i == maxAttempts)
-                        {
-                            throw;
-                        }
-
-                        if (ConnectionState != ConnectionState.Connected)
-                        {
-                            break;
-                        }
-
-                        await Task.Delay(3000 * i);
-
-                        if (ConnectionState != ConnectionState.Connected)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-
             // Watch channel, otherwise WS events won't be received
-            GetOrCreateChannelAsync().ContinueWith(t =>
+            InternalGetOrCreateChannelAsync(channel.Type, channel.Id).ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
@@ -1091,6 +1014,42 @@ namespace StreamChat.Core
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
+        private async Task InternalGetOrCreateChannelAsync(ChannelType channelType, string channelId)
+        {
+#if STREAM_TESTS_ENABLED
+            const int maxAttempts = 5;
+#else
+            const int maxAttempts = 1;
+#endif
+
+            for (int i = 1; i <= maxAttempts; i++)
+            {
+                try
+                {
+                    await GetOrCreateChannelWithIdAsync(channelType, channelId);
+                }
+                catch (StreamApiException streamException)
+                {
+                    if (!streamException.IsRateLimitExceededError() || i == maxAttempts)
+                    {
+                        throw;
+                    }
+
+                    if (ConnectionState != ConnectionState.Connected)
+                    {
+                        break;
+                    }
+
+                    await Task.Delay(3000 * i);
+
+                    if (ConnectionState != ConnectionState.Connected)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
         private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)
         {
             var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
@@ -1103,12 +1062,13 @@ namespace StreamChat.Core
             }
 
             // Watch channel, otherwise WS events won't be received
-            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            InternalGetOrCreateChannelAsync(channel.Type, channel.Id).ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
                     _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
-                                $"before triggering the {nameof(ChannelInviteReceived)} event. Inspect the following exception.");
+                                $"before triggering the {nameof(ChannelInviteReceived)} event. Inspect the following exception: " +
+                                t.Exception);
                     _logs.Exception(t.Exception);
                     return;
                 }
@@ -1129,12 +1089,13 @@ namespace StreamChat.Core
             }
 
             // Watch channel, otherwise WS events won't be received
-            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            InternalGetOrCreateChannelAsync(channel.Type, channel.Id).ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
                     _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
-                                $"before triggering the {nameof(ChannelInviteAccepted)} event. Inspect the following exception.");
+                                $"before triggering the {nameof(ChannelInviteAccepted)} event. Inspect the following exception: " +
+                                t.Exception);
                     _logs.Exception(t.Exception);
                     return;
                 }
@@ -1155,12 +1116,13 @@ namespace StreamChat.Core
             }
 
             // Watch channel, otherwise WS events won't be received
-            GetOrCreateChannelWithIdAsync(channel.Type, channel.Id).ContinueWith(t =>
+            InternalGetOrCreateChannelAsync(channel.Type, channel.Id).ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
                     _logs.Error($"Failed to watch channel with type: {channel.Type} & id: {channel.Id} " +
-                                $"before triggering the {nameof(ChannelInviteRejected)} event. Inspect the following exception.");
+                                $"before triggering the {nameof(ChannelInviteRejected)} event. Inspect the following exception: " +
+                                t.Exception);
                     _logs.Exception(t.Exception);
                     return;
                 }
