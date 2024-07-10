@@ -120,7 +120,7 @@ jobs:
           #targetPlatform: Android
           #unityVersion: 2020.3.48f1
           buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
-          customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility "NET_4_x" -scriptingBackend "il2cpp" -buildTargetPlatform "mobile" -buildTargetPath $(pwd)/SampleAppBuild/App.apk
+          customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/App.apk
           customImage: ${{ steps.dockerImageSelector.outputs.TAG }}"
           allowDirtyBuild: true #Needed because import process may update ProjectSettings
 
