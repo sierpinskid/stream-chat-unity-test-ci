@@ -43,31 +43,42 @@ jobs:
 #          restore-keys: |
 #            Library-
 
-      - name: Install dependencies
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
         run: sudo apt-get install -y libxtst6 libgtk-3-0
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask adoptopenjdk
+          brew install gtk+3
 
       - name: Determine Docker Image
         id: dockerImageSelector
         run: |
           if [ "${{ inputs.unity_version }}" == '2020' ]; then
-          	if [ "${{ inputs.target_platform }}" == 'android' ]; then
-          		TAG='unityci/editor:ubuntu-2020.3.40f1-android-3.1.0'
-          	fi
-          	if [ "${{ inputs.target_platform }}" == 'ios' ]; then
-          		TAG='unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0'
-          	fi
+            if [ "${{ inputs.target_platform }}" == 'android' ]; then
+              TAG='unityci/editor:ubuntu-2020.3.40f1-android-3.1.0'
+            elif [ "${{ inputs.target_platform }}" == 'ios' ]; then
+              TAG='unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0'
+            else
+              echo "Unsupported platform"
+              exit 1
+            fi
+          elif [ "${{ inputs.unity_version }}" == '2021' ]; then
+            if [ "${{ inputs.target_platform }}" == 'android' ]; then
+              TAG='unityci/editor:ubuntu-2021.3.40f1-android-3.1.0'
+            elif [ "${{ inputs.target_platform }}" == 'ios' ]; then
+              TAG='unityci/editor:ubuntu-2021.3.40f1-ios-3.1.0'
+            else
+              echo "Unsupported platform"
+              exit 1
+            fi
+          else
+            echo "Unsupported Unity version"
+            exit 1
           fi
-          
-          if [ "${{ inputs.unity_version }}" == '2021' ]; then
-          	if [ "${{ inputs.target_platform }}" == 'android' ]; then
-          		TAG='unityci/editor:ubuntu-2021.3.40f1-android-3.1.0'
-          	fi
-          	if [ "${{ inputs.target_platform }}" == 'ios' ]; then
-          		TAG='unityci/editor:ubuntu-2021.3.40f1-ios-3.1.0'
-          	fi
-          fi
-          
-          echo "TAG=${TAG}" >> $GITHUB_OUTPUT
+          echo "DOCKER_TAG=$TAG" >> $GITHUB_ENV
       
       - name: Enable Tests
         uses: game-ci/unity-builder@v4
@@ -79,11 +90,10 @@ jobs:
           #targetPlatform: Android
           #unityVersion: 2020.3.48f1
           buildMethod: StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag
-          customImage: ${{ steps.dockerImageSelector.outputs.TAG }}"
+          customImage: ${{ env.DOCKER_TAG }}"
 
       - name: Run Tests
         uses: game-ci/unity-test-runner@v4
-        #continue-on-error: true #TEST ONLY REMOVE THIS
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -92,7 +102,7 @@ jobs:
           #targetPlatform: Android
           #unityVersion: 2020.3.48f1
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}
-          customImage: ${{ steps.dockerImageSelector.outputs.TAG }}"
+          customImage: ${{ env.DOCKER_TAG }}"
 
       - name: Upload Test Results as Artifact
         uses: actions/upload-artifact@v4
@@ -104,7 +114,7 @@ jobs:
 
       - name: Free Disk space
         uses: jlumbroso/free-disk-space@v1.2.0
-        #if: matrix.targetPlatform == 'Android'
+        if: matrix.targetPlatform == 'android' || matrix.targetPlatform == 'ios'
 
       - name: List changes
         run: |
@@ -117,12 +127,10 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          #targetPlatform: Android
-          #unityVersion: 2020.3.48f1
           buildMethod: StreamChat.EditorTools.StreamEditorTools.BuildSampleApp
           customParameters: -streamBase64TestDataSet ${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }} -apiCompatibility ${{ matrix.dotnet_version }} -scriptingBackend ${{ matrix.compiler }} -buildTargetPlatform ${{ matrix.target_platform }} -buildTargetPath $(pwd)/SampleAppBuild/App.apk
-          customImage: ${{ steps.dockerImageSelector.outputs.TAG }}"
-          allowDirtyBuild: true #Needed because import process may update ProjectSettings
+          customImage: ${{ env.DOCKER_TAG }}"
+          allowDirtyBuild: true #Needed because the import process may update ProjectSettings
 
       - name: Upload Build as Artifact
         uses: actions/upload-artifact@v4
