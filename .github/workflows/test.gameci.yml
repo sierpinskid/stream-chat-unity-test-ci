@@ -56,19 +56,19 @@ jobs:
       - name: Determine Docker Image
         id: dockerImageSelector
         run: |
-          if [ "${{ inputs.unity_version }}" == '2020' ]; then
-            if [ "${{ inputs.target_platform }}" == 'android' ]; then
+          if [ "${{ matrix.unity_version }}" == '2020' ]; then
+            if [ "${{ matrix.target_platform }}" == 'android' ]; then
               TAG='unityci/editor:ubuntu-2020.3.40f1-android-3.1.0'
-            elif [ "${{ inputs.target_platform }}" == 'ios' ]; then
+            elif [ "${{ matrix.target_platform }}" == 'ios' ]; then
               TAG='unityci/editor:ubuntu-2020.3.40f1-ios-3.1.0'
             else
               echo "Unsupported platform"
               exit 1
             fi
-          elif [ "${{ inputs.unity_version }}" == '2021' ]; then
-            if [ "${{ inputs.target_platform }}" == 'android' ]; then
+          elif [ "${{ matrix.unity_version }}" == '2021' ]; then
+            if [ "${{ matrix.target_platform }}" == 'android' ]; then
               TAG='unityci/editor:ubuntu-2021.3.40f1-android-3.1.0'
-            elif [ "${{ inputs.target_platform }}" == 'ios' ]; then
+            elif [ "${{ matrix.target_platform }}" == 'ios' ]; then
               TAG='unityci/editor:ubuntu-2021.3.40f1-ios-3.1.0'
             else
               echo "Unsupported platform"
