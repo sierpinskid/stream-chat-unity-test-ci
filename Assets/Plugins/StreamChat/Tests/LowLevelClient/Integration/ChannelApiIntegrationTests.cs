@@ -40,7 +40,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 .RunAsIEnumerator();
         }
 
-/* StreamTODO: Debug why this fails in docker with "upstream request timeout" response
         [UnityTest]
         public IEnumerator Create_channel_with_custom_data()
         {
@@ -69,7 +68,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             
             //StreamTodo: fix returned array here to not be JArray https://stream-io.atlassian.net/browse/PBE-4851
             //Assert.AreEqual(new int[] { 5, 8, 9 }, (int[])channelState.Channel.AdditionalProperties["MyIntArray"]);
-        } */
+        }
 
         [UnityTest]
         public IEnumerator Get_or_create_channel_for_list_of_members()
@@ -339,17 +338,14 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         {
             yield return LowLevelClient.WaitForClientToConnect();
 
-            var channelType = "messaging";
-            var channelId = "new-channel-id-1";
+            const string channelType = "messaging";
 
             var createChannelTask =
-                LowLevelClient.ChannelApi.GetOrCreateChannelAsync(channelType, channelId,
-                    new ChannelGetOrCreateRequest());
+                CreateTempUniqueChannelAsync(channelType, new ChannelGetOrCreateRequest());
 
-            yield return createChannelTask.RunAsIEnumerator(response =>
-            {
-                Assert.AreEqual(response.Channel.Id, channelId);
-            });
+            yield return createChannelTask.RunAsIEnumerator();
+
+            var channelId = createChannelTask.Result.Channel.Id;
 
             var deleteChannelTask
                 = LowLevelClient.ChannelApi.DeleteChannelAsync(channelType, channelId, isHardDelete: false);
