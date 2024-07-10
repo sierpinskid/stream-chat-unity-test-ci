@@ -140,7 +140,6 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             yield return queryUsersTask.RunAsIEnumerator(response => { });
         }
 
-        /* StreamTODO: Debug why this fails in docker with "upstream request timeout" response
         [UnityTest]
         public IEnumerator Query_banned_users()
         {
@@ -217,7 +216,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
             });
 
             yield return queryUsersTask.RunAsIEnumerator(response => { });
-        } */
+        }
     }
 }
 #endif

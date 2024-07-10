@@ -13,8 +13,10 @@ namespace StreamChat.Libs.Http
         public HttpClientAdapter()
         {
             _httpClient = new HttpClient();
+            
 #if STREAM_TESTS_ENABLED
-            _httpClient.Timeout = TimeSpan.FromSeconds(500);
+            // Needed for tests run in a docker container. Timeouts can exceed the default value.
+            _httpClient.Timeout = TimeSpan.FromSeconds(600);
 #endif
         }
 
