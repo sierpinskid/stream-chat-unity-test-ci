@@ -43,6 +43,15 @@ jobs:
       - name: Install Git
         run: git config --global --add safe.directory /github/workspace
 
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update
+      
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew update
+
+
 #      - name: Cache Unity
 #        uses: actions/cache@v2
 #        with:
@@ -60,7 +69,7 @@ jobs:
 #          restore-keys: |
 #            Library-
 
-      - name: Install dependencies (Ubuntu)
+      - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get install -y libxtst6 libgtk-3-0
 
