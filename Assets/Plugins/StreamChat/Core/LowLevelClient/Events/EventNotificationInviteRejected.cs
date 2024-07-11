@@ -6,8 +6,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public sealed class EventNotificationInviteRejected : EventBase,
-        ILoadableFrom<NotificationInviteRejectedEventInternalDTO, EventNotificationInviteRejected>,
-        IInternalChannelNotification
+        ILoadableFrom<NotificationInviteRejectedEventInternalDTO, EventNotificationInviteRejected>
     {
         public Channel Channel { get; set; }
 
@@ -36,8 +35,6 @@ namespace StreamChat.Core.LowLevelClient.Events
             Type = dto.Type;
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
-
-            this.HotWireChannelTypeAndId();
 
             return this;
         }

@@ -6,7 +6,7 @@ using StreamChat.Core.LowLevelClient.Models;
 namespace StreamChat.Core.LowLevelClient.Events
 {
     public partial class EventNotificationMessageNew : EventBase,
-        ILoadableFrom<NotificationNewMessageEventInternalDTO, EventNotificationMessageNew>, IInternalChannelNotification
+        ILoadableFrom<NotificationNewMessageEventInternalDTO, EventNotificationMessageNew>
     {
         public Channel Channel { get; set; }
 
@@ -34,8 +34,6 @@ namespace StreamChat.Core.LowLevelClient.Events
             Team = dto.Team;
             Type = dto.Type;
             AdditionalProperties = dto.AdditionalProperties;
-            
-            this.HotWireChannelTypeAndId();
 
             return this;
         }

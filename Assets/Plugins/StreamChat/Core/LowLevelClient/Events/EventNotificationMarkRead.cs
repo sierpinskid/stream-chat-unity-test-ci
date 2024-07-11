@@ -11,7 +11,7 @@ namespace StreamChat.Core.LowLevelClient.Events
     /// Recipients: clients from the user removed that are not watching the channel
     /// </summary>
     public partial class EventNotificationMarkRead : EventBase,
-        ILoadableFrom<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>, IInternalChannelNotification
+        ILoadableFrom<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>
     {
         public Channel Channel { get; set; }
 
@@ -51,8 +51,6 @@ namespace StreamChat.Core.LowLevelClient.Events
 #pragma warning restore 0618
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
-            
-            this.HotWireChannelTypeAndId();
 
             return this;
         }
