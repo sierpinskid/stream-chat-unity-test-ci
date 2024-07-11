@@ -140,10 +140,13 @@ namespace StreamChat.Tests.StatefulClient
 
 
         [UnityTest]
-        public IEnumerator When_client_sends_message_right_after_reconnect_expect_received_older_messages_to_be_in_correct_order()
-    => ConnectAndExecute(When_client_sends_message_right_after_reconnect_expect_received_older_messages_to_be_in_correct_order_Async);
+        public IEnumerator
+            When_client_sends_message_right_after_reconnect_expect_received_older_messages_to_be_in_correct_order()
+            => ConnectAndExecute(
+                When_client_sends_message_right_after_reconnect_expect_received_older_messages_to_be_in_correct_order_Async);
 
-        private async Task When_client_sends_message_right_after_reconnect_expect_received_older_messages_to_be_in_correct_order_Async()
+        private async Task
+            When_client_sends_message_right_after_reconnect_expect_received_older_messages_to_be_in_correct_order_Async()
         {
             // Create channel
             var channel = await CreateUniqueTempChannelAsync();
@@ -197,8 +200,6 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(2, Array.FindIndex(messages, m => m.Id == message2.Id));
             Assert.AreEqual(3, Array.FindIndex(messages, m => m.Id == otherClientMessageAfterReconnect.Id));
             Assert.AreEqual(4, Array.FindIndex(messages, m => m.Id == otherClientMessageAfterReconnect2.Id));
-
-
         }
     }
 }

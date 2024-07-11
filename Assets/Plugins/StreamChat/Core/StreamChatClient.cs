@@ -709,6 +709,47 @@ namespace StreamChat.Core
                 _connectUserTaskSource.TrySetCanceled();
             }
         }
+        
+        private async Task InternalGetOrCreateChannelAsync(ChannelType channelType, string channelId)
+        {
+#if STREAM_TESTS_ENABLED
+            const int maxAttempts = 10;
+#else
+            const int maxAttempts = 1;
+#endif
+
+            for (int i = 1; i <= maxAttempts; i++)
+            {
+                try
+                {
+                    await GetOrCreateChannelWithIdAsync(channelType, channelId);
+                }
+                catch (StreamApiException streamException)
+                {
+                    if (!streamException.IsRateLimitExceededError() || i == maxAttempts)
+                    {
+                        throw;
+                    }
+
+                    if (ConnectionState != ConnectionState.Connected)
+                    {
+                        break;
+                    }
+
+                    var delay = 4 * i;
+#if STREAM_TESTS_ENABLED
+                    _logs.Warning($"InternalGetOrCreateChannelAsync attempt failed due to rate limit. Wait {delay} seconds and try again");
+#endif
+                    //StreamTodo: pass CancellationToken
+                    await Task.Delay(delay * 1000);
+
+                    if (ConnectionState != ConnectionState.Connected)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
 
         #region Events
 
@@ -1000,47 +1041,6 @@ namespace StreamChat.Core
 
                 RemovedFromChannelAsMember?.Invoke(channel, member);
             }, TaskScheduler.FromCurrentSynchronizationContext());
-        }
-
-        private async Task InternalGetOrCreateChannelAsync(ChannelType channelType, string channelId)
-        {
-#if STREAM_TESTS_ENABLED
-            const int maxAttempts = 10;
-#else
-            const int maxAttempts = 1;
-#endif
-
-            for (int i = 1; i <= maxAttempts; i++)
-            {
-                try
-                {
-                    await GetOrCreateChannelWithIdAsync(channelType, channelId);
-                }
-                catch (StreamApiException streamException)
-                {
-                    if (!streamException.IsRateLimitExceededError() || i == maxAttempts)
-                    {
-                        throw;
-                    }
-
-                    if (ConnectionState != ConnectionState.Connected)
-                    {
-                        break;
-                    }
-
-                    var delay = 4 * i;
-#if STREAM_TESTS_ENABLED
-                    _logs.Warning($"InternalGetOrCreateChannelAsync attempt failed due to rate limit. Wait {delay} seconds and try again");
-#endif
-                    //StreamTodo: pass CancellationToken
-                    await Task.Delay(delay * 1000);
-
-                    if (ConnectionState != ConnectionState.Connected)
-                    {
-                        break;
-                    }
-                }
-            }
         }
 
         private void OnInvitedNotification(NotificationInvitedEventInternalDTO eventDto)
