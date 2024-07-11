@@ -149,7 +149,6 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                 if (apiError.Code != InvalidAuthTokenErrorCode)
                 {
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
-                    
                     throw new StreamApiException(apiError);
                 }
 
