@@ -1017,7 +1017,7 @@ namespace StreamChat.Core
         private async Task InternalGetOrCreateChannelAsync(ChannelType channelType, string channelId)
         {
 #if STREAM_TESTS_ENABLED
-            const int maxAttempts = 5;
+            const int maxAttempts = 10;
 #else
             const int maxAttempts = 1;
 #endif
@@ -1039,12 +1039,13 @@ namespace StreamChat.Core
                     {
                         break;
                     }
-                    
+
+                    var delay = 4 * i;
 #if STREAM_TESTS_ENABLED
-                    _logs.Warning("InternalGetOrCreateChannelAsync attempt failed due to rate limit. Retrying...");
+                    _logs.Warning($"InternalGetOrCreateChannelAsync attempt failed due to rate limit. Wait {delay} seconds and try again");
 #endif
                     //StreamTodo: pass CancellationToken
-                    await Task.Delay(4000 * i);
+                    await Task.Delay(delay * 1000);
 
                     if (ConnectionState != ConnectionState.Connected)
                     {

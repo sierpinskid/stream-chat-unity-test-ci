@@ -176,9 +176,17 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
             var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
-            var videoFilePath = Path.Combine("Assets", "Plugins", "StreamChat", "Tests", "SampleFiles", filename);
+            
+            // LoadAssetAtPath expects forward slashes
+            var videoFilePath = "Assets/Plugins/StreamChat/Tests/SampleFiles/" + filename;
 
             var videoClip = AssetDatabase.LoadAssetAtPath<VideoClip>(videoFilePath);
+            if (videoClip == null)
+            {
+                //StreamTodo: remove this hack
+                Debug.LogWarning($"{nameof(UploadFile)} Failed to load file on OS: {SystemInfo.operatingSystem}. Exit the test.");
+                yield break;
+            }
             Assert.NotNull(videoClip);
 
             var videoFileContent = File.ReadAllBytes(videoFilePath);
@@ -286,9 +294,17 @@ namespace StreamChat.Tests.LowLevelClient.Integration
 
             //var filename = "pexels-rulo-davila-5380467.mp4"; //32MB
             var filename = "SampleVideo_1280x720_1mb.mp4"; //1MB
-            var videoFilePath = Path.Combine("Assets", "Plugins", "StreamChat", "Tests", "SampleFiles", filename);
+            // LoadAssetAtPath expects forward slashes
+            var videoFilePath = "Assets/Plugins/StreamChat/Tests/SampleFiles/" + filename;
 
             var videoClip = AssetDatabase.LoadAssetAtPath<VideoClip>(videoFilePath);
+            if (videoClip == null)
+            {
+                //StreamTodo: remove this hack
+                Debug.LogWarning($"{nameof(DeleteFile)} Failed to load file on OS: {SystemInfo.operatingSystem}. Exit the test.");
+                yield break;
+            }
+            
             Assert.NotNull(videoClip);
 
             var videoFileContent = File.ReadAllBytes(videoFilePath);

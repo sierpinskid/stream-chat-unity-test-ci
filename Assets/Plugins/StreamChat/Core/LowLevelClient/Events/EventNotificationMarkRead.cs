@@ -10,7 +10,8 @@ namespace StreamChat.Core.LowLevelClient.Events
     /// Trigger: when the total count of unread messages (across all channels the user is a member) changes
     /// Recipients: clients from the user removed that are not watching the channel
     /// </summary>
-    public partial class EventNotificationMarkRead : EventBase, ILoadableFrom<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>
+    public partial class EventNotificationMarkRead : EventBase,
+        ILoadableFrom<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>, IInternalChannelNotification
     {
         public Channel Channel { get; set; }
 
@@ -33,7 +34,8 @@ namespace StreamChat.Core.LowLevelClient.Events
 
         public User User { get; set; }
 
-        EventNotificationMarkRead ILoadableFrom<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>.LoadFromDto(NotificationMarkReadEventInternalDTO dto)
+        EventNotificationMarkRead ILoadableFrom<NotificationMarkReadEventInternalDTO, EventNotificationMarkRead>.
+            LoadFromDto(NotificationMarkReadEventInternalDTO dto)
         {
             Channel = Channel.TryLoadFromDto(dto.Channel);
             ChannelId = dto.ChannelId;
@@ -49,6 +51,8 @@ namespace StreamChat.Core.LowLevelClient.Events
 #pragma warning restore 0618
             User = User.TryLoadFromDto<UserObjectInternalDTO, User>(dto.User);
             AdditionalProperties = dto.AdditionalProperties;
+            
+            this.HotWireChannelTypeAndId();
 
             return this;
         }
