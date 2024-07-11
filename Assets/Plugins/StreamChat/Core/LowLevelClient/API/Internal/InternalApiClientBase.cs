@@ -129,19 +129,19 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                             Message = responseContent,
                             Code = 504,
                         };
-                        
+
 #if !STREAM_TESTS_ENABLED
                         throw new StreamApiException(apiError);
 #else
-                        if (attempt >= 5)
+                        if (attempt >= 20)
                         {
                             throw new StreamApiException(apiError);
                         }
 
+                        _logs.Warning($"API CLIENT, TESTS MODE, Upstream Request Timeout - Make another attempt");
                         return await HttpRequest<TResponse>(httpMethod, endpoint,
                             requestBody, queryParameters, ++attempt);
 #endif
-
                     }
 
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
@@ -157,11 +157,13 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
                     throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
                 }
-                
+
 #if STREAM_TESTS_ENABLED
-                if (apiError.StatusCode == StreamApiException.RateLimitErrorHttpStatusCode)
+                if (apiError.StatusCode == StreamApiException.RateLimitErrorHttpStatusCode && attempt < 30)
                 {
-                    await Task.Delay(attempt * 5 * 1000);
+                    var delaySeconds = attempt * 5;
+                    _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds");
+                    await Task.Delay(delaySeconds * 1000);
                     return await HttpRequest<TResponse>(httpMethod, endpoint,
                         requestBody, queryParameters, ++attempt);
                 }
