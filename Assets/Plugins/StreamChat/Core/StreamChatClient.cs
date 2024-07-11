@@ -1039,8 +1039,12 @@ namespace StreamChat.Core
                     {
                         break;
                     }
-
-                    await Task.Delay(3000 * i);
+                    
+#if STREAM_TESTS_ENABLED
+                    _logs.Warning("InternalGetOrCreateChannelAsync attempt failed due to rate limit. Retrying...");
+#endif
+                    //StreamTodo: pass CancellationToken
+                    await Task.Delay(4000 * i);
 
                     if (ConnectionState != ConnectionState.Connected)
                     {
