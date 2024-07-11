@@ -918,12 +918,6 @@ namespace StreamChat.Core
             sb.AppendLine($"{nameof(eventDto.Channel.Cid)}: {eventDto.Channel.Cid}");
 #endif
 
-            //StreamTodo: sometimes when I run all tests the eventDto.Channel.Type is null. Inspect how different is this DTO from the channel kept in cache. If its incomplete we shouldn't update the cached value
-            if (eventDto.Channel.Type == null && eventDto.ChannelType != null)
-            {
-                eventDto.Channel.Type = eventDto.ChannelType;
-            }
-
             var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
 
 #if STREAM_TESTS_ENABLED
@@ -965,24 +959,18 @@ namespace StreamChat.Core
         {
 #if STREAM_TESTS_ENABLED
             var sb = new StringBuilder();
-            sb.AppendLine("OnRemovedFromChannelNotification");
+            sb.AppendLine("OnRemovedFromChannelNotification BEFORE CACHE");
             sb.AppendLine($"{nameof(eventDto.ChannelType)}: {eventDto.ChannelType}");
             sb.AppendLine($"{nameof(eventDto.Channel.Type)}: {eventDto.Channel.Type}");
             sb.AppendLine($"{nameof(eventDto.Channel.Id)}: {eventDto.Channel.Id}");
             sb.AppendLine($"{nameof(eventDto.Channel.Cid)}: {eventDto.Channel.Cid}");
+            _logs.Info(sb.ToString());
 #endif
-
-            //StreamTodo: sometimes when I run all tests the eventDto.Channel.Type is null. Inspect how different is this DTO from the channel kept in cache. If its incomplete we shouldn't update the cached value
-            if (eventDto.Channel.Type == null && eventDto.ChannelType != null)
-            {
-                eventDto.Channel.Type = eventDto.ChannelType;
-            }
-
             var channel = _cache.TryCreateOrUpdate(eventDto.Channel, out var wasCreated);
 
 #if STREAM_TESTS_ENABLED
             sb.Length = 0;
-            sb.AppendLine("Channel returned from cache:");
+            sb.AppendLine("Channel returned FROM CACHE:");
             sb.AppendLine($"{nameof(channel.Type)}: {channel.Type}");
             sb.AppendLine($"{nameof(channel.Id)}: {channel.Id}");
             sb.AppendLine($"{nameof(channel.Cid)}: {channel.Cid}");

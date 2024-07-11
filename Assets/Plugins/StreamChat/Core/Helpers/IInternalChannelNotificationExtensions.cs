@@ -1,4 +1,6 @@
-﻿namespace StreamChat.Core.Helpers
+﻿using StreamChat.Libs;
+
+namespace StreamChat.Core.Helpers
 {
     internal static class IInternalChannelNotificationExtensions
     {
@@ -17,6 +19,21 @@
             {
                 notification.Channel.Type = notification.ChannelType;
             }
+            
+            #if STREAM_DEBUG_ENABLED || STREAM_TESTS_ENABLED
+
+            var logs = StreamDependenciesFactory.CreateLogger();
+            
+            if (string.IsNullOrEmpty(notification.Channel.Id))
+            {
+                logs.Error($"HotWireChannelTypeAndId FAILED - {nameof(notification.Channel.Id)}: {notification.Channel.Id} ");
+            }
+
+            if (string.IsNullOrEmpty(notification.Channel.Type))
+            {
+                logs.Error($"HotWireChannelTypeAndId FAILED - {nameof(notification.Channel.Type)}: {notification.Channel.Type} ");
+            }
+            #endif
         }
     }
 }
