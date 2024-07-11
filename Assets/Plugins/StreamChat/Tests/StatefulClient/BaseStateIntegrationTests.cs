@@ -148,7 +148,7 @@ namespace StreamChat.Tests.StatefulClient
             }
         }
 
-        protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxIterations = 500)
+        protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxIterations = 500, int maxSeconds = 500)
         {
             var sw = new Stopwatch();
             sw.Start();
@@ -160,7 +160,7 @@ namespace StreamChat.Tests.StatefulClient
                     return;
                 }
                 
-                if (sw.Elapsed.Seconds > 60)
+                if (sw.Elapsed.Seconds > maxSeconds)
                 {
                     return;
                 }
