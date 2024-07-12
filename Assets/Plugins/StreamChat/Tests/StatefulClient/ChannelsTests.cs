@@ -378,7 +378,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.UpdateOverwriteAsync(new StreamUpdateOverwriteChannelRequest(channel));
 
-            await WaitWithTimeoutAsync(cts.Task, 5, $"Channel {nameof(channel.Updated)} event was not received");
+            await WaitWithTimeoutAsync(cts.Task, $"Channel {nameof(channel.Updated)} event was not received");
 
             channel.Updated -= OnChannelUpdated;
             
@@ -431,7 +431,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.UpdateOverwriteAsync(new StreamUpdateOverwriteChannelRequest());
 
-            await WaitWithTimeoutAsync(cts.Task, 5, $"Channel {nameof(channel.Updated)} event was not received");
+            await WaitWithTimeoutAsync(cts.Task, $"Channel {nameof(channel.Updated)} event was not received");
 
             channel.Updated -= OnChannelUpdated;
             
@@ -489,7 +489,7 @@ namespace StreamChat.Tests.StatefulClient
                 }
             });
 
-            await WaitWithTimeoutAsync(cts.Task, 5, $"Channel {nameof(channel.Updated)} event was not received");
+            await WaitWithTimeoutAsync(cts.Task, $"Channel {nameof(channel.Updated)} event was not received");
 
             channel.Updated -= OnChannelUpdated;
             
@@ -576,8 +576,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.InviteMembersAsync(OtherUserId);
 
-            await WaitWithTimeoutAsync(taskCompletionSource.Task, maxSeconds: 3,
-                $"Event {nameof(channel.Updated)} was not received");
+            await WaitWithTimeoutAsync(taskCompletionSource.Task, $"Event {nameof(channel.Updated)} was not received");
 
             channel.Updated -= OnChannelUpdated;
         }
