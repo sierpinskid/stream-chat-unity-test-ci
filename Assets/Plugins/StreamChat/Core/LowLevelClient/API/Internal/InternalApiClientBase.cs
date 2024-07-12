@@ -161,7 +161,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 #if STREAM_TESTS_ENABLED
                 if (apiError.StatusCode == StreamApiException.RateLimitErrorHttpStatusCode && attempt < 50)
                 {
-                    var delaySeconds = attempt * 10;
+                    var delaySeconds = 61 + attempt * 10;
                     _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds");
                     await Task.Delay(delaySeconds * 1000);
                     return await HttpRequest<TResponse>(httpMethod, endpoint,
