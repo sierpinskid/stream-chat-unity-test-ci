@@ -112,7 +112,7 @@ namespace StreamChat.Tests.StatefulClient
             await WaitWhileTrueAsync(() => channel.Members.All(m => m.User != otherUser));
             Assert.NotNull(channel.Members.FirstOrDefault(member => member.User == otherUser));
 
-            await WaitWithTimeoutAsync(tcs.Task, 5, $"Event {nameof(channel.MessageReceived)} was not received");
+            await WaitWithTimeoutAsync(tcs.Task, $"Event {nameof(channel.MessageReceived)} was not received");
 
             channel.MessageReceived -= OnMessageReceived;
         }
