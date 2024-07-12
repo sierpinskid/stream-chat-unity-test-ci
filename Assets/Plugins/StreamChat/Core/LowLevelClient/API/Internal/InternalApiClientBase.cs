@@ -324,7 +324,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                     var secondsLeft = rateLimitTimestamp - now;
                     if (secondsLeft > 0)
                     {
-                        return secondsLeft;
+                        return secondsLeft + 5;
                     }
                 }
             }
