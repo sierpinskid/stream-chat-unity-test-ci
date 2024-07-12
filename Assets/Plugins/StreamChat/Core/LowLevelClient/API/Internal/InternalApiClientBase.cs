@@ -83,7 +83,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         }
 
         private async Task<TResponse> HttpRequest<TResponse>(HttpMethodType httpMethod, string endpoint,
-            object requestBody = default, QueryParameters queryParameters = null)
+            object requestBody = default, QueryParameters queryParameters = null, int attempt = 0)
         {
             //StreamTodo: perhaps remove this requirement, sometimes we send empty body without any properties
             if (requestBody == null && IsRequestBodyRequiredByHttpMethod(httpMethod))
@@ -129,7 +129,19 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                             Message = responseContent,
                             Code = 504,
                         };
+
+#if !STREAM_TESTS_ENABLED
                         throw new StreamApiException(apiError);
+#else
+                        if (attempt >= 20)
+                        {
+                            throw new StreamApiException(apiError);
+                        }
+
+                        _logs.Warning($"API CLIENT, TESTS MODE, Upstream Request Timeout - Make another attempt");
+                        return await HttpRequest<TResponse>(httpMethod, endpoint,
+                            requestBody, queryParameters, ++attempt);
+#endif
                     }
 
                     LogRestCall(uri, endpoint, httpMethod, responseContent, success: false, logContent);
@@ -145,6 +157,17 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 
                     throw new StreamDeserializationException(responseContent, typeof(TResponse), e);
                 }
+
+#if STREAM_TESTS_ENABLED
+                if (apiError.StatusCode == StreamApiException.RateLimitErrorHttpStatusCode && attempt < 50)
+                {
+                    var delaySeconds = attempt * 10;
+                    _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds");
+                    await Task.Delay(delaySeconds * 1000);
+                    return await HttpRequest<TResponse>(httpMethod, endpoint,
+                        requestBody, queryParameters, ++attempt);
+                }
+#endif
 
                 if (apiError.Code != InvalidAuthTokenErrorCode)
                 {
