@@ -330,7 +330,8 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.UpdatePartialAsync(unsetFields: new string[] { "owned_dogs", "breakfast" });
 
-            //StreamTodo: this can potentially be non deterministic because we rely on WS event being received before call ends
+            await WaitWhileTrueAsync(
+                () => new[] { "owned_dogs", "breakfast" }.All(channel.CustomData.ContainsKey));
 
             Assert.IsFalse(channel.CustomData.ContainsKey("owned_dogs"));
             Assert.IsFalse(channel.CustomData.ContainsKey("breakfast"));
