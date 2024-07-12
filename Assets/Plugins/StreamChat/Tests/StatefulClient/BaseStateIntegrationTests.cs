@@ -59,9 +59,33 @@ namespace StreamChat.Tests.StatefulClient
             var channelId = "random-channel-11111-" + Guid.NewGuid();
             var client = overrideClient ?? Client;
 
-            var channelState = await client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
-            _tempChannels.Add(channelState);
-            return channelState;
+            const int maxAttempts = 20;
+            for (var i = 0; i < maxAttempts; i++)
+            {
+                try
+                {
+                    var channelState = await client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
+                    _tempChannels.Add(channelState);
+                    return channelState;
+                }
+                catch (StreamApiException e)
+                {
+                    if (i == maxAttempts - 1)
+                    {
+                        throw;
+                    }
+                    
+                    if (e.IsRateLimitExceededError())
+                    {
+                        await Task.Delay(i * 5 * 1000);
+                        continue;
+                    }
+
+                    throw;
+                }
+            }
+
+            throw new InvalidOperationException($"{nameof(CreateUniqueTempChannelAsync)} failed to due to max attempts reached.");
         }
 
         /// <summary>
@@ -124,7 +148,7 @@ namespace StreamChat.Tests.StatefulClient
             }
         }
 
-        protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxIterations = 500)
+        protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxIterations = 500, int maxSeconds = 500)
         {
             var sw = new Stopwatch();
             sw.Start();
@@ -136,7 +160,7 @@ namespace StreamChat.Tests.StatefulClient
                     return;
                 }
                 
-                if (sw.Elapsed.Seconds > 60)
+                if (sw.Elapsed.Seconds > maxSeconds)
                 {
                     return;
                 }
