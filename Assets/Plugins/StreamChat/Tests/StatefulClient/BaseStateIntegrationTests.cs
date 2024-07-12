@@ -126,12 +126,12 @@ namespace StreamChat.Tests.StatefulClient
         /// <summary>
         /// Use this if state update depends on receiving WS event that might come after the REST call was completed
         /// </summary>
-        protected static async Task WaitWhileTrueAsync(Func<bool> condition, int maxIterations = 500, int maxSeconds = 500)
+        protected static async Task WaitWhileTrueAsync(Func<bool> condition, int maxSeconds = 1000)
         {
             var sw = new Stopwatch();
             sw.Start();
             
-            for (int i = 0; i < maxIterations; i++)
+            for (int i = 0; i < int.MaxValue; i++)
             {
                 if (!condition())
                 {
@@ -150,12 +150,12 @@ namespace StreamChat.Tests.StatefulClient
             throw new TimeoutException("Timeout while waiting for condition");
         }
 
-        protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxIterations = 500, int maxSeconds = 500)
+        protected static async Task WaitWhileFalseAsync(Func<bool> condition, int maxSeconds = 1000)
         {
             var sw = new Stopwatch();
             sw.Start();
             
-            for (int i = 0; i < maxIterations; i++)
+            for (int i = 0; i < int.MaxValue; i++)
             {
                 if (condition())
                 {

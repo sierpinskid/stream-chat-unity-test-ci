@@ -125,7 +125,7 @@ namespace StreamChat.Tests
             }
 
             AuthCredentials primaryAdminSet;
-            if (optionalTestDataIndex.HasValue)
+            if (optionalTestDataIndex.HasValue && optionalTestDataIndex.Value < testAuthDataSet.TestAdminData.Length)
             {
                 Debug.LogWarning($"Using {nameof(optionalTestDataIndex)} to pick credentials test data set: {optionalTestDataIndex}");
                 primaryAdminSet = testAuthDataSet.TestAdminData[optionalTestDataIndex.Value];

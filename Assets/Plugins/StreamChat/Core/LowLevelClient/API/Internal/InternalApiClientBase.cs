@@ -102,7 +102,14 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                     queryParameters = QueryParameters.Default;
                 }
 
-                queryParameters.Append("payload", serializedContent);
+                if (queryParameters.ContainsKey("paload"))
+                {
+                    queryParameters["payload"] = serializedContent;
+                }
+                else
+                {
+                    queryParameters.Append("payload", serializedContent);
+                }
             }
 
             var uri = _requestUriFactory.CreateEndpointUri(endpoint, queryParameters);
@@ -307,7 +314,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             var delaySeconds = GetBackoffDelay(attempt, httpResponse, out var resetHeaderTimestamp);
             var now = (int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
             _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds. " +
-                          $"Timestamp reset header: {resetHeaderTimestamp}, Current timestamp: {now}, Dif: {now - resetHeaderTimestamp}");
+                          $"Timestamp reset header: {resetHeaderTimestamp}, Current timestamp: {now}, Dif: {resetHeaderTimestamp - now}");
             await Task.Delay(delaySeconds * 1000);
             return await HttpRequest<TResponse>(httpMethod, endpoint, requestBody, queryParameters, ++attempt);
         }
@@ -315,6 +322,7 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
         private int GetBackoffDelay(int attempt, HttpResponse httpResponse, out int resetHeaderTimestamp)
         {
             resetHeaderTimestamp = -1;
+            // StreamTodo: Backoff based on the header doesn't seem to work. Perhaps concurrency is conflicting with this approach
             if (httpResponse.TryGetHeader("x-ratelimit-reset", out var values))
             {
                 var resetTimestamp = values.FirstOrDefault();
@@ -324,14 +332,14 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                     resetHeaderTimestamp = rateLimitTimestamp;
                     var now = (int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
                     var secondsLeft = rateLimitTimestamp - now;
-                    if (secondsLeft > 0)
-                    {
-                        return secondsLeft + 5;
-                    }
+                    // if (secondsLeft > 0)
+                    // {
+                    //     return secondsLeft + 5;
+                    // }
                 }
             }
 
-            return 61 + attempt * 10;
+            return 61 + attempt * 20;
         }
     }
 }
