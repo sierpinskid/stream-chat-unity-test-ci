@@ -322,7 +322,10 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
                     resetHeaderTimestamp = rateLimitTimestamp;
                     var now = (int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
                     var secondsLeft = rateLimitTimestamp - now;
-                    return secondsLeft;
+                    if (secondsLeft > 0)
+                    {
+                        return secondsLeft;
+                    }
                 }
             }
 
