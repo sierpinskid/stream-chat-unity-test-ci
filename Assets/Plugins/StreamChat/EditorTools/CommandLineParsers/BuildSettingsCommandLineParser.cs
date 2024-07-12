@@ -6,6 +6,7 @@ using StreamChat.EditorTools.Builders;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Serialization;
 using UnityEditor;
+using UnityEngine;
 
 namespace StreamChat.EditorTools.CommandLineParsers
 {
@@ -64,7 +65,12 @@ namespace StreamChat.EditorTools.CommandLineParsers
         {
             if (!args.ContainsKey(StreamBase64TestDataArgKey))
             {
-                throw new ArgumentException($"Missing argument: `{StreamBase64TestDataArgKey}`");
+                throw new ArgumentException($"Tests CLI - Missing argument: `{StreamBase64TestDataArgKey}`");
+            }
+
+            if (!args.ContainsKey(TestDataSetIndexArgKey))
+            {
+                Debug.LogWarning($"Tests CLI - Missing argument: {nameof(TestDataSetIndexArgKey)}. Ignored");
             }
 
             forceDataSetIndex = GetOptionalTestDataIndex();
