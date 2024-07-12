@@ -636,10 +636,10 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreNotEqual(StreamMessageType.Error, lastNormalMessage.Type);
             
             await channel.FreezeAsync();
+            await WaitWhileFalseAsync(() => channel.Frozen);
             Assert.IsTrue(channel.Frozen);
             
             await channel.SendNewMessageAsync("MessageAfterFrozenChannel");
-
             var lastMessage = channel.Messages.LastOrDefault();
             
             Assert.IsNotNull(lastMessage);
