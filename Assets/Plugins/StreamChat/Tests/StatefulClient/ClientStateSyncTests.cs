@@ -56,7 +56,8 @@ namespace StreamChat.Tests.StatefulClient
             await GetConnectedOtherClientAsync();
 
             // Wait for sync request to complete
-            await WaitWhileTrueAsync(() => otherClientChannel.Messages.All(m => m.Id != message.Id));
+            await WaitWhileTrueAsync(()
+                => otherClientChannel.Messages.All(m => m.Id != message.Id && m.Id != message2.Id));
 
             // Messages should now be present on the second client with no duplicates
             Assert.IsNotNull(otherClientChannel.Messages.Single(m => m.Id == message.Id));
