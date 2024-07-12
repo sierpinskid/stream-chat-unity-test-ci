@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StreamChat.Core.Exceptions;
@@ -161,11 +162,8 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
 #if STREAM_TESTS_ENABLED
                 if (apiError.StatusCode == StreamApiException.RateLimitErrorHttpStatusCode && attempt < 50)
                 {
-                    var delaySeconds = 61 + attempt * 10;
-                    _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds");
-                    await Task.Delay(delaySeconds * 1000);
-                    return await HttpRequest<TResponse>(httpMethod, endpoint,
-                        requestBody, queryParameters, ++attempt);
+                    return await HandleRateLimit<TResponse>(httpMethod, endpoint, requestBody, queryParameters, attempt,
+                        httpResponse);
                 }
 #endif
 
@@ -295,6 +293,40 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             _sb.Append(Environment.NewLine);
 
             _logs.Info(_sb.ToString());
+        }
+
+        private async Task<TResponse> HandleRateLimit<TResponse>(HttpMethodType httpMethod, string endpoint,
+            object requestBody, QueryParameters queryParameters, int attempt, HttpResponse httpResponse)
+        {
+            if (attempt >= 50)
+            {
+                throw new StreamApiException(new APIErrorInternalDTO
+                    { Code = StreamApiException.RateLimitErrorHttpStatusCode });
+            }
+
+            var delaySeconds = GetBackoffDelay(attempt, httpResponse, out var resetHeaderTimestamp);
+            _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds. Timestamp reset header: {resetHeaderTimestamp}");
+            await Task.Delay(delaySeconds * 1000);
+            return await HttpRequest<TResponse>(httpMethod, endpoint, requestBody, queryParameters, ++attempt);
+        }
+
+        private int GetBackoffDelay(int attempt, HttpResponse httpResponse, out int resetHeaderTimestamp)
+        {
+            resetHeaderTimestamp = -1;
+            if (httpResponse.TryGetHeader("x-ratelimit-reset", out var values))
+            {
+                var resetTimestamp = values.FirstOrDefault();
+
+                if (int.TryParse(resetTimestamp, out var rateLimitTimestamp))
+                {
+                    resetHeaderTimestamp = rateLimitTimestamp;
+                    var now = (int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+                    var secondsLeft = rateLimitTimestamp - now;
+                    return secondsLeft;
+                }
+            }
+
+            return 61 + attempt * 10;
         }
     }
 }
