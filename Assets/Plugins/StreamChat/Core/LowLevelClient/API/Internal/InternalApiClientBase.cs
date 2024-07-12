@@ -305,7 +305,9 @@ namespace StreamChat.Core.LowLevelClient.API.Internal
             }
 
             var delaySeconds = GetBackoffDelay(attempt, httpResponse, out var resetHeaderTimestamp);
-            _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds. Timestamp reset header: {resetHeaderTimestamp}");
+            var now = (int)new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            _logs.Warning($"API CLIENT, TESTS MODE, Rate Limit API Error - Wait for {delaySeconds} seconds. " +
+                          $"Timestamp reset header: {resetHeaderTimestamp}, Current timestamp: {now}, Dif: {now - resetHeaderTimestamp}");
             await Task.Delay(delaySeconds * 1000);
             return await HttpRequest<TResponse>(httpMethod, endpoint, requestBody, queryParameters, ++attempt);
         }
