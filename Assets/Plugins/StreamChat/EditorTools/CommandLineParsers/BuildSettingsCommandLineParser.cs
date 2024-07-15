@@ -74,9 +74,9 @@ namespace StreamChat.EditorTools.CommandLineParsers
             }
 
             forceDataSetIndex = GetOptionalTestDataIndex();
-            var rawTestDataSet = GetTestDataSet(args);
+            var serializedDataSet = DecodeTestDataSet(args);
             var serializer = new NewtonsoftJsonSerializer();
-            return serializer.Deserialize<TestAuthDataSets>(rawTestDataSet);
+            return serializer.Deserialize<TestAuthDataSets>(serializedDataSet.Trim());
             
             int? GetOptionalTestDataIndex()
             {
@@ -141,7 +141,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
             }
         }
 
-        private static string GetTestDataSet(IDictionary<string, string> args)
+        private static string DecodeTestDataSet(IDictionary<string, string> args)
         {
             var decodedBytes = Convert.FromBase64String(args[StreamBase64TestDataArgKey]);
             return Encoding.UTF8.GetString(decodedBytes);
