@@ -1,11 +1,8 @@
 ﻿#if STREAM_TESTS_ENABLED
-using System;
 using System.IO;
-using System.Text;
 using StreamChat.EditorTools.CommandLineParsers;
 using StreamChat.EditorTools;
 using StreamChat.Libs.Auth;
-using StreamChat.Libs.Serialization;
 using UnityEngine;
 
 namespace StreamChat.Tests
@@ -26,24 +23,15 @@ namespace StreamChat.Tests
 
                 var testAuthDataSet = parser.ParseTestAuthDataSetArg(argsDict, out forceDataSetIndex);
 
-                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.Admins[0].UserId);
-
                 return testAuthDataSet;
             }
 
             if (File.Exists(TestAuthDataFilePath))
             {
-                var serializer = new NewtonsoftJsonSerializer();
+                var parser = new BuildSettingsCommandLineParser();
 
                 var base64TestData = File.ReadAllText(TestAuthDataFilePath);
-                var decodedJsonTestData = Convert.FromBase64String(base64TestData);
-                var serializedTestDataSet = Encoding.UTF8.GetString(decodedJsonTestData);
-                Debug.Log("Decoded data set length: " + serializedTestDataSet.Length);
-
-                var testAuthDataSet =
-                    serializer.Deserialize<TestAuthDataSets>(serializedTestDataSet);
-
-                Debug.Log("Data deserialized correctly. Sample: " + testAuthDataSet.Admins[0].UserId);
+                var testAuthDataSet = parser.DeserializeFromBase64(base64TestData);
 
                 return testAuthDataSet;
             }

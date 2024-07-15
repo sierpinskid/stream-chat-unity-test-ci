@@ -74,11 +74,9 @@ namespace StreamChat.EditorTools.CommandLineParsers
             }
 
             forceDataSetIndex = GetOptionalTestDataIndex();
-            var serializedDataSet = DecodeTestDataSet(args);
-            Debug.Log("Decoded data set length: " + serializedDataSet.Length);
-            
-            var serializer = new NewtonsoftJsonSerializer();
-            return serializer.Deserialize<TestAuthDataSets>(serializedDataSet.Trim());
+            var base64TestAuthDataSet = args[StreamBase64TestDataArgKey];
+
+            return DeserializeFromBase64(base64TestAuthDataSet);
             
             int? GetOptionalTestDataIndex()
             {
@@ -89,6 +87,21 @@ namespace StreamChat.EditorTools.CommandLineParsers
 
                 return int.Parse(arg);
             }
+        }
+        
+        public TestAuthDataSets DeserializeFromBase64(string base64Data)
+        {
+            Debug.Log($"Test Data Set. Base 64 encoded length: {base64Data.Length}");
+            
+            var decodedBytes = Convert.FromBase64String(base64Data);
+            var decodedString = Encoding.UTF8.GetString(decodedBytes);
+            Debug.Log($"Test Data Set. Decoded to UTF8 string length: {decodedString.Length}");
+            
+            var serializer = new NewtonsoftJsonSerializer();
+            var testAuthDataSet =  serializer.Deserialize<TestAuthDataSets>(decodedString);
+            Debug.Log($"Test Data Set. Admin sets: {testAuthDataSet.Admins.Length}, User sets: {testAuthDataSet.Users.Length}");
+
+            return testAuthDataSet;
         }
 
         private static BuildTargetGroup GetBuildTargetGroup(BuildTargetPlatform targetPlatform)
@@ -141,12 +154,6 @@ namespace StreamChat.EditorTools.CommandLineParsers
                 default:
                     throw new ArgumentOutOfRangeException(nameof(scriptingBackend), scriptingBackend, null);
             }
-        }
-
-        private static string DecodeTestDataSet(IDictionary<string, string> args)
-        {
-            var decodedBytes = Convert.FromBase64String(args[StreamBase64TestDataArgKey]);
-            return Encoding.UTF8.GetString(decodedBytes);
         }
     }
 }
