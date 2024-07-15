@@ -75,6 +75,8 @@ namespace StreamChat.EditorTools.CommandLineParsers
 
             forceDataSetIndex = GetOptionalTestDataIndex();
             var serializedDataSet = DecodeTestDataSet(args);
+            Debug.Log("Decoded data set length: " + serializedDataSet.Length);
+            
             var serializer = new NewtonsoftJsonSerializer();
             return serializer.Deserialize<TestAuthDataSets>(serializedDataSet.Trim());
             

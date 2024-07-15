@@ -37,6 +37,7 @@ namespace StreamChat.Tests
 
                 var base64TestData = File.ReadAllText(TestAuthDataFilePath);
                 var decodedJsonTestData = Convert.FromBase64String(base64TestData);
+                Debug.Log("Decoded data set length: " + decodedJsonTestData.Length);
 
                 var testAuthDataSet =
                     serializer.Deserialize<TestAuthDataSets>(Encoding.UTF8.GetString(decodedJsonTestData));
