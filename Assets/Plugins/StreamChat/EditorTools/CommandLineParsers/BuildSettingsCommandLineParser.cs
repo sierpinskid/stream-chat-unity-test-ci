@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Text;
 using StreamChat.EditorTools;
 using StreamChat.EditorTools.Builders;
@@ -94,7 +96,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
             Debug.Log($"Test Data Set. Base 64 encoded length: {base64Data.Length}");
             
             var decodedBytes = Convert.FromBase64String(base64Data);
-            var decodedString = Encoding.UTF8.GetString(decodedBytes);
+            var decodedString = DecompressString(decodedBytes);
             Debug.Log($"Test Data Set. Decoded to UTF8 string length: {decodedString.Length}");
             
             var serializer = new NewtonsoftJsonSerializer();
@@ -102,6 +104,20 @@ namespace StreamChat.EditorTools.CommandLineParsers
             Debug.Log($"Test Data Set. Admin sets: {testAuthDataSet.Admins.Length}, User sets: {testAuthDataSet.Users.Length}");
 
             return testAuthDataSet;
+        }
+        
+        private static string DecompressString(byte[] bytes)
+        {
+            using (var memoryStream = new MemoryStream(bytes))
+            {
+                using (var gzipStream = new GZipStream(memoryStream, CompressionMode.Decompress))
+                {
+                    using (var reader = new StreamReader(gzipStream, Encoding.UTF8))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
         }
 
         private static BuildTargetGroup GetBuildTargetGroup(BuildTargetPlatform targetPlatform)
