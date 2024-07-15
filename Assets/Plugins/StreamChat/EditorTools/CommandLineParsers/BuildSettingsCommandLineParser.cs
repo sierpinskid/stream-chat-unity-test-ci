@@ -61,7 +61,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
                 testAuthDataSet.GetAdminData(forceIndex: optionalTestDataIndex));
         }
 
-        public TestAuthDataSet ParseTestAuthDataSetArg(IDictionary<string, string> args, out int? forceDataSetIndex)
+        public TestAuthDataSets ParseTestAuthDataSetArg(IDictionary<string, string> args, out int? forceDataSetIndex)
         {
             if (!args.ContainsKey(StreamBase64TestDataArgKey))
             {
@@ -76,7 +76,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
             forceDataSetIndex = GetOptionalTestDataIndex();
             var rawTestDataSet = GetTestDataSet(args);
             var serializer = new NewtonsoftJsonSerializer();
-            return serializer.Deserialize<TestAuthDataSet>(rawTestDataSet);
+            return serializer.Deserialize<TestAuthDataSets>(rawTestDataSet);
             
             int? GetOptionalTestDataIndex()
             {

@@ -564,7 +564,7 @@ namespace StreamChat.Tests.StatefulClient
                     return;
                 }
 
-                var invitedMember = channel2.Members.FirstOrDefault(m => m.User.Id == OtherUserId);
+                var invitedMember = channel2.Members.FirstOrDefault(m => m.User.Id == AdminSecondaryCredentials.UserId);
 
                 Assert.IsNotNull(invitedMember);
                 Assert.IsTrue(invitedMember.Invited);
@@ -574,7 +574,7 @@ namespace StreamChat.Tests.StatefulClient
 
             channel.Updated += OnChannelUpdated;
 
-            await channel.InviteMembersAsync(OtherUserId);
+            await channel.InviteMembersAsync(AdminSecondaryCredentials.UserId);
 
             await WaitWithTimeoutAsync(taskCompletionSource.Task, $"Event {nameof(channel.Updated)} was not received");
 

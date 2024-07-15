@@ -147,16 +147,6 @@ namespace StreamChat.Tests
 
             throw task.Exception;
         }
-
-        public static IEnumerator WaitForSeconds(float seconds)
-        {
-            var timeStarted = Time.realtimeSinceStartup;
-
-            while (Time.realtimeSinceStartup - timeStarted < seconds)
-            {
-                yield return null;
-            }
-        }
         
         public static string ToRfc3339String(this DateTime dateTime) 
             => dateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fffzzz", DateTimeFormatInfo.InvariantInfo);

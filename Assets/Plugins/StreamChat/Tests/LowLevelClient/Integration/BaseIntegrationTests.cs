@@ -44,7 +44,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         /// <summary>
         /// Id of other user than currently logged one
         /// </summary>
-        protected static string OtherUserId => StreamTestClients.Instance.OtherUserId;
+        protected static string SecondUserId => StreamTestClients.Instance.AdminSecondaryCredentials.UserId;
 
         protected static OwnUser LowLevelClientOwnUser => StreamTestClients.Instance.LowLevelClientOwnUser;
 

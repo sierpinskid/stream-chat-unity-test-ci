@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StreamChat.Core;
 using StreamChat.Core.Exceptions;
-using StreamChat.Core.InternalDTO.Requests;
 using StreamChat.Core.Requests;
 using StreamChat.Core.StatefulModels;
 using StreamChat.Libs.Auth;
@@ -38,16 +37,12 @@ namespace StreamChat.Tests.StatefulClient
         protected static StreamChatClient Client => StreamTestClients.Instance.StateClient;
 
         protected int MainThreadId { get; } = Thread.CurrentThread.ManagedThreadId;
-
-        // StreamTodo: replace with admin ids fetched from loaded data set
-        protected const string TestUserId = TestUtils.TestUserId;
-        protected const string TestAdminId = TestUtils.TestAdminId;
-        protected const string TestGuestId = TestUtils.TestGuestId;
-
-        protected static string OtherUserId => StreamTestClients.Instance.OtherUserId;
-
-        protected static IEnumerable<AuthCredentials> OtherAdminUsersCredentials
-            => StreamTestClients.Instance.OtherUserCredentials;
+        
+        protected AuthCredentials AdminPrimaryCredentials => StreamTestClients.Instance.AdminPrimaryCredentials;
+        protected AuthCredentials AdminSecondaryCredentials => StreamTestClients.Instance.AdminSecondaryCredentials;
+        
+        protected AuthCredentials UserPrimaryCredentials => StreamTestClients.Instance.UserPrimaryCredentials;
+        protected AuthCredentials UserSecondaryCredentials => StreamTestClients.Instance.UserSecondaryCredentials;
 
         protected int GetCurrentThreadId() => Thread.CurrentThread.ManagedThreadId;
 
@@ -59,33 +54,9 @@ namespace StreamChat.Tests.StatefulClient
             var channelId = "random-channel-11111-" + Guid.NewGuid();
             var client = overrideClient ?? Client;
 
-            const int maxAttempts = 20;
-            for (var i = 0; i < maxAttempts; i++)
-            {
-                try
-                {
-                    var channelState = await client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
-                    _tempChannels.Add(channelState);
-                    return channelState;
-                }
-                catch (StreamApiException e)
-                {
-                    if (i == maxAttempts - 1)
-                    {
-                        throw;
-                    }
-                    
-                    if (e.IsRateLimitExceededError())
-                    {
-                        await Task.Delay(i * 5 * 1000);
-                        continue;
-                    }
-
-                    throw;
-                }
-            }
-
-            throw new InvalidOperationException($"{nameof(CreateUniqueTempChannelAsync)} failed to due to max attempts reached.");
+            var channelState = await client.InternalGetOrCreateChannelWithIdAsync(ChannelType.Messaging, channelId, name, watch: watch);
+            _tempChannels.Add(channelState);
+            return channelState;
         }
 
         /// <summary>
@@ -143,7 +114,7 @@ namespace StreamChat.Tests.StatefulClient
                     throw new TimeoutException("Timeout while waiting for condition");
                 }
 
-                var delay = (int)Math.Max(1, Math.Min(400, Math.Pow(2, i)));
+                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
                 await Task.Delay(delay);
             }
 
@@ -167,7 +138,7 @@ namespace StreamChat.Tests.StatefulClient
                     throw new TimeoutException("Timeout while waiting for condition");
                 }
 
-                var delay = (int)Math.Max(1, Math.Min(400, Math.Pow(2, i)));
+                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
                 await Task.Delay(delay);
             }
             
@@ -183,29 +154,33 @@ namespace StreamChat.Tests.StatefulClient
         }
 
         /// <summary>
-        /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxAttempts"/>
+        /// Timeout will be doubled on each subsequent attempt. So max timeout = <see cref="initTimeoutMs"/> * 2^<see cref="maxSeconds"/>
         /// </summary>
-        protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition, int maxAttempts = 20,
-            int initTimeoutMs = 150)
+        protected static async Task<T> TryAsync<T>(Func<Task<T>> task, Predicate<T> successCondition,
+            int maxSeconds = 1000)
         {
-            var response = default(T);
+            var sw = new Stopwatch();
+            sw.Start();
 
-            var attemptsLeft = maxAttempts;
-            while (attemptsLeft > 0)
+            for (int i = 0; i < int.MaxValue; i++)
             {
-                response = await task();
+                var response = await task();
 
                 if (successCondition(response))
                 {
                     return response;
                 }
+                
+                if (sw.Elapsed.Seconds > maxSeconds)
+                {
+                    throw new TimeoutException("Timeout while waiting for condition");
+                }
 
-                var delay = initTimeoutMs * Math.Pow(2, (maxAttempts - attemptsLeft));
-                await Task.Delay((int)delay);
-                attemptsLeft--;
+                var delay = (int)Math.Min(100 * 1000, Math.Pow(2, i + 9));
+                await Task.Delay(delay);
             }
 
-            return response;
+            throw new TimeoutException("Timeout while waiting for condition");
         }
 
         private readonly List<IStreamChannel> _tempChannels = new List<IStreamChannel>();
@@ -253,25 +228,7 @@ namespace StreamChat.Tests.StatefulClient
                 return;
             }
 
-            for (int i = 0; i < 5; i++)
-            {
-                try
-                {
-                    await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
-                }
-                catch (StreamApiException streamApiException)
-                {
-                    if (streamApiException.Code == StreamApiException.RateLimitErrorHttpStatusCode)
-                    {
-                        await Task.Delay(1000);
-                    }
-
-                    Debug.Log($"Attempt {i} failed. Try {nameof(DeleteTempChannelsAsync)} again due to exception:  " + streamApiException);
-                    continue;
-                }
-
-                break;
-            }
+            await Client.DeleteMultipleChannelsAsync(_tempChannels, isHardDelete: true);
 
             _tempChannels.Clear();
         }
