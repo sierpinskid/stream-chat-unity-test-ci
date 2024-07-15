@@ -17,6 +17,11 @@ namespace StreamChat.EditorTools
             Users = userSets.ToArray();
         }
 
+        public TestAuthDataSets()
+        {
+            
+        }
+
         public AuthCredentials GetAdminData(int? forceIndex = default) => GetDataSet(true, forceIndex);
 
         private AuthCredentials GetDataSet(bool isAdmin, int? forceIndex = default)
