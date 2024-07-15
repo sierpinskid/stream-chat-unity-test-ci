@@ -93,7 +93,10 @@ namespace StreamChat.Tests.StatefulClient
                 ChannelFilter.Frozen.EqualsTo(false),
             };
 
-            var channels = (await Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending)).ToArray();
+            var channels = (await TryAsync(() => Client.QueryChannelsAsync(filters, _sortByCreatedAtAscending),
+                channels => channels.Contains(channel1) && !channels.Contains(channel2) &&
+                            !channels.Contains(channel3))).ToArray();
+            
             Assert.Contains(channel1, channels);
             Assert.IsNull(channels.FirstOrDefault(c => c == channel2));
             Assert.IsNull(channels.FirstOrDefault(c => c == channel3));
