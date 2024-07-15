@@ -1,6 +1,5 @@
 ﻿#if STREAM_TESTS_ENABLED
 using NUnit.Framework;
-using StreamChat.Core.StatefulModels;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -55,9 +54,11 @@ namespace StreamChat.Tests.StatefulClient
             // Reconnect other client
             await GetConnectedOtherClientAsync();
 
+            var expectedMessageIds = new string[] { message.Id, message2.Id };
+
             // Wait for sync request to complete
-            await WaitWhileTrueAsync(()
-                => otherClientChannel.Messages.All(m => m.Id != message.Id || m.Id != message2.Id));
+            await WaitWhileFalseAsync(()
+                => expectedMessageIds.All(otherClientChannel.Messages.Select(m => m.Id).Contains));
 
             // Messages should now be present on the second client with no duplicates
             Assert.IsNotNull(otherClientChannel.Messages.Single(m => m.Id == message.Id));
