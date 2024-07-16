@@ -91,11 +91,13 @@ namespace StreamChat.EditorTools.CommandLineParsers
             }
         }
         
-        public TestAuthDataSets DeserializeFromBase64(string base64Data)
+        public TestAuthDataSets DeserializeFromBase64(string urlSafeBase64)
         {
-            Debug.Log($"Test Data Set. Base 64 encoded length: {base64Data.Length}");
-            
-            var decodedBytes = Convert.FromBase64String(base64Data);
+            Debug.Log($"Test Data Set. URL-safe Base 64 encoded length: {urlSafeBase64.Length}");
+
+            var base64Set = UrlSafeBase64ToBase64(urlSafeBase64);
+            var decodedBytes = Convert.FromBase64String(base64Set);
+
             var decodedString = DecompressString(decodedBytes);
             Debug.Log($"Test Data Set. Decoded to UTF8 string length: {decodedString.Length}");
             
@@ -104,6 +106,17 @@ namespace StreamChat.EditorTools.CommandLineParsers
             Debug.Log($"Test Data Set. Admin sets: {testAuthDataSet.Admins.Length}, User sets: {testAuthDataSet.Users.Length}");
 
             return testAuthDataSet;
+        }
+
+        private static string UrlSafeBase64ToBase64(string urlSafeBase64)
+        {
+            var result = urlSafeBase64.Replace('_', '/').Replace('-', '+');
+            switch(urlSafeBase64.Length % 4) {
+                case 2: result += "=="; break;
+                case 3: result += "="; break;
+            }
+
+            return result;
         }
         
         private static string DecompressString(byte[] bytes)
