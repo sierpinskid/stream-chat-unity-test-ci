@@ -99,7 +99,7 @@ namespace StreamChat.EditorTools.CommandLineParsers
             var decodedBytes = Convert.FromBase64String(base64Set);
 
             var decodedString = DecompressString(decodedBytes);
-            Debug.Log($"Test Data Set. Decoded to UTF8 string length: {decodedString.Length}");
+            Debug.Log($"Test Data Set. Decompressed to UTF8 string length: {decodedString.Length}");
             
             var serializer = new NewtonsoftJsonSerializer();
             var testAuthDataSet =  serializer.Deserialize<TestAuthDataSets>(decodedString);
