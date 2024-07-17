@@ -44,7 +44,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
         /// <summary>
         /// Id of other user than currently logged one
         /// </summary>
-        protected static string OtherUserId => StreamTestClients.Instance.OtherUserId;
+        protected static string SecondUserId => StreamTestClients.Instance.AdminSecondaryCredentials.UserId;
 
         protected static OwnUser LowLevelClientOwnUser => StreamTestClients.Instance.LowLevelClientOwnUser;
 
@@ -105,12 +105,21 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 catch (StreamApiException streamApiException)
                 {
                     // Check for "Too many requests" error
-                    if (streamApiException.StatusCode == 429)
+                    if (streamApiException.IsRateLimitExceededError())
                     {
-                        const int tooManyRequestsDelay = 4;
+                        var tooManyRequestsDelay = 4 * attempt;
                         Debug.Log($"Wait {tooManyRequestsDelay} seconds due to \"too many requests\" error");
                         await Task.Delay(tooManyRequestsDelay * 1000);
+                        continue;
                     }
+
+                    // upstream request timeout - often received when running tests via docker
+                    if (streamApiException.Code == 504)
+                    {
+                        continue;
+                    }
+                    
+                    Debug.LogException(streamApiException);
                 }
 
                 if (successCondition(response))

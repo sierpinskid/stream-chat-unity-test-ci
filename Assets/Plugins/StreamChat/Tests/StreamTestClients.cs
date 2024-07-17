@@ -83,9 +83,13 @@ namespace StreamChat.Tests
 
         public OwnUser LowLevelClientOwnUser { get; private set; }
 
-        public string OtherUserId => _otherUserCredentials.UserId;
-        public IEnumerable<AuthCredentials> OtherUserCredentials => _otherUsersCredentials;
-        public AuthCredentials LowLevelClientCredentials { get; }
+        public AuthCredentials LowLevelClientCredentials => AdminPrimaryCredentials;
+
+        public AuthCredentials AdminPrimaryCredentials { get; private set; }
+        public AuthCredentials AdminSecondaryCredentials { get; private set; }
+
+        public AuthCredentials UserPrimaryCredentials { get; private set; }
+        public AuthCredentials UserSecondaryCredentials { get; private set; }
 
         public IEnumerator ReconnectLowLevelClientClient()
         {
@@ -95,18 +99,14 @@ namespace StreamChat.Tests
             yield return LowLevelClient.WaitForClientToConnect();
         }
 
-        public Task ConnectStateClientAsync() => ConnectStateClientAsync(StateClient, _stateClientCredentials);
+        public Task ConnectStateClientAsync() => ConnectStateClientAsync(StateClient, AdminPrimaryCredentials);
 
         public Task<StreamChatClient> ConnectOtherStateClientAsync()
-            => ConnectStateClientAsync(OtherStateClient, _otherUserCredentials);
+            => ConnectStateClientAsync(OtherStateClient, AdminSecondaryCredentials);
 
         private static StreamTestClients _instance;
 
         private readonly HashSet<object> _locks = new HashSet<object>();
-
-        private readonly AuthCredentials _stateClientCredentials;
-        private readonly AuthCredentials _otherUserCredentials;
-        private readonly List<AuthCredentials> _otherUsersCredentials;
 
         private IStreamChatLowLevelClient _lowLevelClient;
         private StreamChatClient _stateClient;
@@ -118,29 +118,38 @@ namespace StreamChat.Tests
         {
             UnityTestRunnerCallbacks.RunFinishedCallback += OnRunFinishedCallback;
 
-            var testAuthDataSet = TestUtils.GetTestAuthCredentials(out var optionalTestDataIndex);
-            if (testAuthDataSet.TestAdminData.Length < 3)
+            var testAuthSets = TestUtils.GetTestAuthCredentials(out var optionalTestDataIndex);
+            if (testAuthSets.Admins.Length < 3)
             {
                 throw new ArgumentException("At least 3 admin credentials are required");
             }
 
-            AuthCredentials primaryAdminSet;
-            if (optionalTestDataIndex.HasValue)
+            // StreamTodo: pass this offset via CLI arg
+            const int offset = 20;
+
+            AdminPrimaryCredentials = GetCredentialsFromSet(testAuthSets.Admins, optionalTestDataIndex);
+            AdminSecondaryCredentials = GetCredentialsFromSet(testAuthSets.Admins, optionalTestDataIndex + offset);
+            UserPrimaryCredentials = GetCredentialsFromSet(testAuthSets.Admins, optionalTestDataIndex);
+            UserSecondaryCredentials = GetCredentialsFromSet(testAuthSets.Admins, optionalTestDataIndex + offset);
+        }
+
+        private AuthCredentials GetCredentialsFromSet(AuthCredentials[] set, int? forcedIndex)
+        {
+            if (forcedIndex.HasValue)
             {
-                primaryAdminSet = testAuthDataSet.TestAdminData[optionalTestDataIndex.Value];
-            }
-            else
-            {
-                var shuffledSets = testAuthDataSet.TestAdminData.OrderBy(_ => Random.value);
-                primaryAdminSet = shuffledSets.First();
+                if (forcedIndex.Value >= set.Length)
+                {
+                    Debug.LogError($"{nameof(forcedIndex)} is out of range -> given: {forcedIndex}, " +
+                                   $"max available: {set.Length - 1}. Using random credentials data instead.");
+                }
+                else
+                {
+                    return set[forcedIndex.Value];
+                }
             }
 
-            var otherAdminSets = testAuthDataSet.TestAdminData.Except(new[] { primaryAdminSet }).ToArray();
-
-            LowLevelClientCredentials = primaryAdminSet;
-            _stateClientCredentials = primaryAdminSet;
-            _otherUserCredentials = otherAdminSets[1];
-            _otherUsersCredentials = otherAdminSets.Skip(2).ToList();
+            var shuffledSets = set.OrderBy(_ => Random.value);
+            return shuffledSets.First();
         }
 
         private static async Task<StreamChatClient> ConnectStateClientAsync(StreamChatClient client,
