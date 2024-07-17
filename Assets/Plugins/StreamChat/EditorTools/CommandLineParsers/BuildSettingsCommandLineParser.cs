@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using StreamChat.EditorTools;
 using StreamChat.EditorTools.Builders;
 using StreamChat.Libs.Auth;
 using StreamChat.Libs.Serialization;
