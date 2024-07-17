@@ -37,16 +37,12 @@ namespace StreamChat.Tests.StatefulClient
         protected static StreamChatClient Client => StreamTestClients.Instance.StateClient;
 
         protected int MainThreadId { get; } = Thread.CurrentThread.ManagedThreadId;
-
-        // StreamTodo: replace with admin ids fetched from loaded data set
-        protected const string TestUserId = TestUtils.TestUserId;
-        protected const string TestAdminId = TestUtils.TestAdminId;
-        protected const string TestGuestId = TestUtils.TestGuestId;
-
-        protected static string OtherUserId => StreamTestClients.Instance.OtherUserId;
-
-        protected static IEnumerable<AuthCredentials> OtherAdminUsersCredentials
-            => StreamTestClients.Instance.OtherUserCredentials;
+        
+        protected AuthCredentials AdminPrimaryCredentials => StreamTestClients.Instance.AdminPrimaryCredentials;
+        protected AuthCredentials AdminSecondaryCredentials => StreamTestClients.Instance.AdminSecondaryCredentials;
+        
+        protected AuthCredentials UserPrimaryCredentials => StreamTestClients.Instance.UserPrimaryCredentials;
+        protected AuthCredentials UserSecondaryCredentials => StreamTestClients.Instance.UserSecondaryCredentials;
 
         protected int GetCurrentThreadId() => Thread.CurrentThread.ManagedThreadId;
 

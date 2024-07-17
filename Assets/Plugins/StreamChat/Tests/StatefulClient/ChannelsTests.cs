@@ -134,7 +134,8 @@ namespace StreamChat.Tests.StatefulClient
 
             Assert.IsNotEmpty(Client.LocalUserData.ChannelMutes);
 
-            var channelMute = Client.LocalUserData.ChannelMutes.FirstOrDefault(m => m.Channel == channel);
+            var mutes = await TryAsync(() => Task.FromResult(Client.LocalUserData.ChannelMutes), mutes => mutes.FirstOrDefault(m => m.Channel == channel) != null);
+            var channelMute = mutes.FirstOrDefault(m => m.Channel == channel);
             Assert.IsNotNull(channelMute);
             Assert.AreEqual(true, channel.Muted);
 
@@ -564,7 +565,7 @@ namespace StreamChat.Tests.StatefulClient
                     return;
                 }
 
-                var invitedMember = channel2.Members.FirstOrDefault(m => m.User.Id == OtherUserId);
+                var invitedMember = channel2.Members.FirstOrDefault(m => m.User.Id == AdminSecondaryCredentials.UserId);
 
                 Assert.IsNotNull(invitedMember);
                 Assert.IsTrue(invitedMember.Invited);
@@ -574,7 +575,7 @@ namespace StreamChat.Tests.StatefulClient
 
             channel.Updated += OnChannelUpdated;
 
-            await channel.InviteMembersAsync(OtherUserId);
+            await channel.InviteMembersAsync(AdminSecondaryCredentials.UserId);
 
             await WaitWithTimeoutAsync(taskCompletionSource.Task, $"Event {nameof(channel.Updated)} was not received");
 

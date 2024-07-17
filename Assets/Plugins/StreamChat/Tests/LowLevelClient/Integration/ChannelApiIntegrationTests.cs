@@ -87,7 +87,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                         },
                         new ChannelMemberRequest
                         {
-                            UserId = OtherUserId
+                            UserId = SecondUserId
                         },
                     }
                 }
@@ -505,7 +505,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 {
                     new ChannelMemberRequest
                     {
-                        UserId = OtherUserId
+                        UserId = SecondUserId
                     },
                     new ChannelMemberRequest
                     {
@@ -600,7 +600,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 {
                     new ChannelMemberRequest
                     {
-                        UserId = OtherUserId
+                        UserId = SecondUserId
                     },
                     new ChannelMemberRequest
                     {
@@ -750,7 +750,7 @@ namespace StreamChat.Tests.LowLevelClient.Integration
                 {
                     new ChannelMemberRequest
                     {
-                        UserId = OtherUserId
+                        UserId = SecondUserId
                     },
                     new ChannelMemberRequest
                     {

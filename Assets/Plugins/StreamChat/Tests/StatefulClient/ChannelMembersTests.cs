@@ -27,7 +27,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             var channel = await CreateUniqueTempChannelAsync();
 
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+            var otherUserId = AdminSecondaryCredentials.UserId;
 
             var filters = new IFieldFilterRule[]
             {
@@ -51,7 +51,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             var channel = await CreateUniqueTempChannelAsync();
 
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+            var otherUserId = AdminSecondaryCredentials.UserId;
 
             var filters = new IFieldFilterRule[]
             {
@@ -77,7 +77,7 @@ namespace StreamChat.Tests.StatefulClient
             When_add_user_to_channel_with_hide_history_and_message_expect_user_as_members_and_message_sent_Async()
         {
             var channel = await CreateUniqueTempChannelAsync();
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+            var otherUserId = AdminSecondaryCredentials.UserId;
 
             var memberAddedMsg = $"{otherUserId} was added to the channel";
 
@@ -126,7 +126,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             var channel = await CreateUniqueTempChannelAsync();
 
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+            var otherUserId = AdminSecondaryCredentials.UserId;
 
             var filters = new IFieldFilterRule[]
             {
@@ -156,7 +156,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             var channel = await CreateUniqueTempChannelAsync();
 
-            var otherUserId = OtherAdminUsersCredentials.First().UserId;
+            var otherUserId = AdminSecondaryCredentials.UserId;
 
             var filters = new IFieldFilterRule[]
             {
@@ -183,7 +183,7 @@ namespace StreamChat.Tests.StatefulClient
         {
             var channel = await CreateUniqueTempChannelAsync();
 
-            var otherUsers = OtherAdminUsersCredentials.Take(3).ToArray();
+            var otherUsers = new[] { AdminSecondaryCredentials, UserPrimaryCredentials };
             var firstCredentials = otherUsers.First();
             var lastCredentials = otherUsers.Last();
 
@@ -389,13 +389,15 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsNotNull(eventMember);
             Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
         }
-        
+
         [UnityTest]
-        public IEnumerator When_user_added_to_not_watched_channel_expect_user_receive_added_to_channel_event_from_main_thread()
+        public IEnumerator
+            When_user_added_to_not_watched_channel_expect_user_receive_added_to_channel_event_from_main_thread()
             => ConnectAndExecute(
                 When_user_added_to_not_watched_channel_expect_user_receive_added_to_channel_event_from_main_thread_Async);
 
-        private async Task When_user_added_to_not_watched_channel_expect_user_receive_added_to_channel_event_from_main_thread_Async()
+        private async Task
+            When_user_added_to_not_watched_channel_expect_user_receive_added_to_channel_event_from_main_thread_Async()
         {
             var channel = await CreateUniqueTempChannelAsync(watch: false);
 
@@ -430,7 +432,7 @@ namespace StreamChat.Tests.StatefulClient
             Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
             Assert.AreEqual(receivedEventThreadId, MainThreadId);
         }
-        
+
         [UnityTest]
         public IEnumerator When_user_added_to_not_watched_channel_expect_received_channel_being_watched()
             => ConnectAndExecute(
@@ -461,9 +463,10 @@ namespace StreamChat.Tests.StatefulClient
 
             Client.AddedToChannelAsMember += OnAddedToChannelAsMember;
 
-            await otherClientChannel.AddMembersAsync(hideHistory: default, optionalMessage: default, Client.LocalUserData.User);
+            await otherClientChannel.AddMembersAsync(hideHistory: default, optionalMessage: default,
+                Client.LocalUserData.User);
             await WaitWhileFalseAsync(() => receivedEvent);
-            
+
             Client.AddedToChannelAsMember -= OnAddedToChannelAsMember;
 
             Assert.IsTrue(receivedEvent);
@@ -489,12 +492,12 @@ namespace StreamChat.Tests.StatefulClient
                 receivedMessageChannel = messageChannel;
                 messageEventThreadId = GetCurrentThreadId();
             }
-            
+
             otherClientChannel.MessageReceived += OnMessageReceived;
 
             await otherClientChannel.SendNewMessageAsync("Hello");
             await WaitWhileFalseAsync(() => receivedMessageEvent);
-            
+
             otherClientChannel.MessageReceived -= OnMessageReceived;
 
             Assert.IsTrue(receivedMessageEvent);
@@ -547,7 +550,7 @@ namespace StreamChat.Tests.StatefulClient
 
             await channel.RemoveMembersAsync(new IStreamUser[] { Client.LocalUserData.User });
             await WaitWhileFalseAsync(() => receivedRemovedEvent);
-            
+
             Client.AddedToChannelAsMember -= OnAddedToChannelAsMember;
             Client.RemovedFromChannelAsMember -= OnRemovedFromChannelAsMember;
 
@@ -556,7 +559,6 @@ namespace StreamChat.Tests.StatefulClient
             Assert.IsNotNull(eventMember);
             Assert.AreEqual(Client.LocalUserData.User, eventMember.User);
         }
-        
     }
 }
 #endif
