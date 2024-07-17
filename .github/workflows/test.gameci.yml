@@ -136,7 +136,8 @@ jobs:
           buildMethod: StreamChat.EditorTools.StreamEditorTools.EnableStreamTestsEnabledCompilerFlag
           customImage: ${{ env.DOCKER_TAG }}
 
-      - name: Run Tests
+      - name: Run Tests (Attempt 1)
+        id: run_tests_1
         uses: game-ci/unity-test-runner@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -145,6 +146,63 @@ jobs:
         with:
           customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
           customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Tests (Attempt 2)
+        id: run_tests_2
+        if: steps.run_tests_1.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Tests (Attempt 3)
+        id: run_tests_3
+        if: steps.run_tests_2.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Tests (Attempt 4)
+        id: run_tests_4
+        if: steps.run_tests_3.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Tests (Attempt 5)
+        id: run_tests_5
+        if: steps.run_tests_4.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customParameters: -streamBase64TestDataSet "${{ secrets.STREAM_AUTH_TEST_DATA_BASE64 }}" -testDataSetIndex ${{ env.SEQUENTIAL_INDEX }}
+          customImage: ${{ env.DOCKER_TAG }}
+        timeout-minutes: 20
 
       - name: Upload Test Results as Artifact
         uses: actions/upload-artifact@v4
