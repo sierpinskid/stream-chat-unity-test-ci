@@ -3,11 +3,9 @@ name: Unity CI
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main, develop ]
   pull_request:
-    branches:
-      - main
+    branches: [ main, develop ]
 
 jobs:
   build:
@@ -50,24 +48,6 @@ jobs:
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: brew update
-
-
-#      - name: Cache Unity
-#        uses: actions/cache@v2
-#        with:
-#          path: ~/.cache/unity3d
-#          key: Unity-${{ matrix.unityVersion }}-${{ matrix.targetPlatform }}
-#          restore-keys: |
-#            Unity-${{ matrix.unityVersion }}-
-#            Unity-
-
-#      - name: Cache Library folder
-#        uses: actions/cache@v2
-#        with:
-#          path: ${{ github.workspace }}/Library
-#          key: Library-${{ matrix.unityVersion }}-${{ matrix.targetPlatform }}
-#          restore-keys: |
-#            Library-
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
